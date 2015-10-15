@@ -199,12 +199,6 @@ namespace Server.Spells
 
 		public virtual bool OnCasterMoving( Direction d )
 		{
-			//if ( IsCasting && BlocksMovement )
-			//{
-			//	m_Caster.SendLocalizedMessage( 500111 ); // You are frozen and can not move.
-			//	return false;
-			//}
-
 			return true;
 		}
 
