@@ -134,9 +134,12 @@ namespace Server.Items
 				{
 					Spell spell = SpellRegistry.NewSpell( spellID, from, null );
 	
-					if ( spell != null )
-						spell.Cast();
-					else
+					if ( spell != null)
+                    {
+                        if (spell.PrepareCast())
+                            spell.Cast();
+                    }
+                    else
 						from.SendLocalizedMessage( 502345 ); // This spell has been temporarily disabled.
 				}
 			}

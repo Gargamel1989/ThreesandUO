@@ -1,5 +1,6 @@
 using System;
 using Server;
+using Server.Targeting;
 using Server.Items;
 
 namespace Server.Spells
@@ -112,5 +113,55 @@ namespace Server.Spells
 				return TimeSpan.FromSeconds( (3 + (int)Circle) * CastDelaySecondsPerTick );
 			}
 		}
-	}
+    }
+
+
+    public abstract class TargetedMagerySpell : MagerySpell
+    {
+        private TargetFlags target_flags;
+
+        protected Mobile target;
+
+        public TargetedMagerySpell(Mobile caster, Item scroll, SpellInfo info, TargetFlags flags)
+            : base(caster, scroll, info)
+        {
+            target_flags = flags;
+        }
+
+
+
+        public override bool PrepareCast()
+        {
+            Caster.Target = new InternalTarget(this);
+            return false;
+        }
+
+
+        public void Target(Mobile m)
+        {
+            target = m;
+
+            Cast();
+        }
+
+
+
+        public class InternalTarget : Target
+        {
+            private TargetedMagerySpell m_Owner;
+
+            public InternalTarget(TargetedMagerySpell owner) : base(Core.ML ? 10 : 12, false, owner.target_flags)
+            {
+                m_Owner = owner;
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Mobile)
+                {
+                    m_Owner.Target((Mobile)o);
+                }
+            }
+        }
+    }
 }

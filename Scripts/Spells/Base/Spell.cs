@@ -199,11 +199,11 @@ namespace Server.Spells
 
 		public virtual bool OnCasterMoving( Direction d )
 		{
-			if ( IsCasting && BlocksMovement )
-			{
-				m_Caster.SendLocalizedMessage( 500111 ); // You are frozen and can not move.
-				return false;
-			}
+			//if ( IsCasting && BlocksMovement )
+			//{
+			//	m_Caster.SendLocalizedMessage( 500111 ); // You are frozen and can not move.
+			//	return false;
+			//}
 
 			return true;
 		}
@@ -480,7 +480,22 @@ namespace Server.Spells
 
 		public virtual bool CheckNextSpellTime{ get{ return !(m_Scroll is BaseWand); } }
 
-		public bool Cast()
+        /// <summary>
+        /// Takes the necessary preparations in order to cast this spell
+        /// </summary>
+        /// <remarks>
+        /// This function can be override to implement e.g. Up-front Targeting
+        /// </remarks>
+        /// <returns>
+        /// True if the spell preparation was succesfull
+        /// False of not
+        /// </returns>
+        public virtual bool PrepareCast()
+        {
+            return true;
+        }
+
+        public bool Cast()
 		{
 			m_StartCastTime = Core.TickCount;
 
