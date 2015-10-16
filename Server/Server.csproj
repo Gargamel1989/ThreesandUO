@@ -6,7 +6,7 @@
     <ProjectGuid>{0B33CEEB-88E1-49A6-8D7D-AF6A5A357087}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
-    <AssemblyName>RunUO</AssemblyName>
+    <AssemblyName>ThreesandUO</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
