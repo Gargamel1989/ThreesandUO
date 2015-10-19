@@ -174,7 +174,6 @@
     <Compile Include="Engines\Chat\ChatActionHandler.cs" />
     <Compile Include="Engines\Chat\ChatActionHandlers.cs" />
     <Compile Include="Engines\Chat\ChatCommand.cs" />
-    <Compile Include="Engines\Chat\Chatold.cs" />
     <Compile Include="Engines\Chat\ChatUser.cs" />
     <Compile Include="Engines\Chat\Packets.cs" />
     <Compile Include="Engines\ConPVP\AcceptDuelGump.cs" />
