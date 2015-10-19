@@ -215,6 +215,33 @@ namespace Server.Engines.Craft
 
 			MarkOption = true;
 			Repair = Core.AOS;
-		}
+
+            SetSubRes(typeof(Log), 1072643);
+
+            // Add every material you want the player to be able to choose from
+            // This will override the overridable material	TODO: Verify the required skill amount
+            AddSubRes(typeof(Log), 1072643, 00.0, 1044041, 1072652);
+            AddSubRes(typeof(OakLog), 1072644, 65.0, 1044041, 1072652);
+            AddSubRes(typeof(AshLog), 1072645, 80.0, 1044041, 1072652);
+            AddSubRes(typeof(YewLog), 1072646, 95.0, 1044041, 1072652);
+            AddSubRes(typeof(HeartwoodLog), 1072647, 100.0, 1044041, 1072652);
+            AddSubRes(typeof(BloodwoodLog), 1072648, 100.0, 1044041, 1072652);
+            AddSubRes(typeof(FrostwoodLog), 1072649, 100.0, 1044041, 1072652);
+
+            // Set the overridable material
+            SetSubRes2(typeof(IronIngot), 1044022);
+
+            // Add every material you want the player to be able to choose from
+            // This will override the overridable material
+            AddSubRes2(typeof(IronIngot), 1044022, 00.0, 1044036, 1044267);
+            AddSubRes2(typeof(DullCopperIngot), 1044023, 65.0, 1044036, 1044268);
+            AddSubRes2(typeof(ShadowIronIngot), 1044024, 70.0, 1044036, 1044268);
+            AddSubRes2(typeof(CopperIngot), 1044025, 75.0, 1044036, 1044268);
+            AddSubRes2(typeof(BronzeIngot), 1044026, 80.0, 1044036, 1044268);
+            AddSubRes2(typeof(GoldIngot), 1044027, 85.0, 1044036, 1044268);
+            AddSubRes2(typeof(AgapiteIngot), 1044028, 90.0, 1044036, 1044268);
+            AddSubRes2(typeof(VeriteIngot), 1044029, 95.0, 1044036, 1044268);
+            AddSubRes2(typeof(ValoriteIngot), 1044030, 99.0, 1044036, 1044268);
+        }
 	}
 }
