@@ -5,7 +5,7 @@ ThreesandUO
 
 Required Client Files
 ----
-UO Client Download Link:	[UOClassicSetup_7_0_15_1.exe](https://mega.nz/#!UUAiQKra)
+UO Client Download Link:	[UOClassicSetup_7_0_15_1.exe](https://mega.nz/#!UUAiQKra!C33PPezZxNhxLWzCC9gTYeW-c5EkrQg00AE-SNXjdXI)
 
 Razor:						[Razor Installer.exe](http://www.uogamers.com/razor/)
 
