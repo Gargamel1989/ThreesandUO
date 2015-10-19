@@ -3,7 +3,7 @@ using System;
 namespace Server.Items
 {
 	[FlipableAttribute( 0x1BD7, 0x1BDA )]
-	public class Board : Item, ICommodity
+	public class BaseWoodenBoard : Item, ICommodity
 	{
 		private CraftResource m_Resource;
 
@@ -35,29 +35,29 @@ namespace Server.Items
 		bool ICommodity.IsDeedable { get { return true; } }
 
 		[Constructable]
-		public Board()
+		public BaseWoodenBoard()
 			: this( 1 )
 		{
 		}
 
 		[Constructable]
-		public Board( int amount )
+		public BaseWoodenBoard( int amount )
 			: this( CraftResource.RegularWood, amount )
 		{
 		}
 
-		public Board( Serial serial )
+		public BaseWoodenBoard( Serial serial )
 			: base( serial )
 		{
 		}
 
 		[Constructable]
-		public Board( CraftResource resource ) : this( resource, 1 )
+		public BaseWoodenBoard( CraftResource resource ) : this( resource, 1 )
 		{
 		}
 
 		[Constructable]
-		public Board( CraftResource resource, int amount )
+		public BaseWoodenBoard( CraftResource resource, int amount )
 			: base( 0x1BD7 )
 		{
 			Stackable = true;
@@ -88,7 +88,7 @@ namespace Server.Items
 		{
 			base.Serialize( writer );
 
-			writer.Write( (int) 3 );
+			writer.Write( (int) 4 );
 
 			writer.Write( (int)m_Resource );
 		}
@@ -101,6 +101,7 @@ namespace Server.Items
 
 			switch ( version )
 			{
+                case 4:
 				case 3:
 				case 2:
 					{
@@ -118,41 +119,75 @@ namespace Server.Items
 	}
 
 
-	public class HeartwoodBoard : Board
-	{
-		[Constructable]
-		public HeartwoodBoard()
-			: this( 1 )
-		{
-		}
+    public class Board : BaseWoodenBoard
+    {
+        [Constructable]
+        public Board()
+            : this(1)
+        {
+        }
 
-		[Constructable]
-		public HeartwoodBoard( int amount )
-			: base( CraftResource.Heartwood, amount )
-		{
-		}
+        [Constructable]
+        public Board(int amount)
+            : base(CraftResource.Heartwood, amount)
+        {
+        }
 
-		public HeartwoodBoard( Serial serial )
-			: base( serial )
-		{
-		}
+        public Board(Serial serial)
+            : base(serial)
+        {
+        }
 
-		public override void Serialize( GenericWriter writer )
-		{
-			base.Serialize( writer );
+        public override void Serialize(GenericWriter writer)
+        {
+            base.Serialize(writer);
 
-			writer.Write( (int)0 ); // version
-		}
+            writer.Write((int)0); // version
+        }
 
-		public override void Deserialize( GenericReader reader )
-		{
-			base.Deserialize( reader );
+        public override void Deserialize(GenericReader reader)
+        {
+            base.Deserialize(reader);
 
-			int version = reader.ReadInt();
-		}
-	}
+            int version = reader.ReadInt();
+        }
+    }
 
-	public class BloodwoodBoard : Board
+    public class HeartwoodBoard : BaseWoodenBoard
+    {
+        [Constructable]
+        public HeartwoodBoard()
+            : this(1)
+        {
+        }
+
+        [Constructable]
+        public HeartwoodBoard(int amount)
+            : base(CraftResource.Heartwood, amount)
+        {
+        }
+
+        public HeartwoodBoard(Serial serial)
+            : base(serial)
+        {
+        }
+
+        public override void Serialize(GenericWriter writer)
+        {
+            base.Serialize(writer);
+
+            writer.Write((int)0); // version
+        }
+
+        public override void Deserialize(GenericReader reader)
+        {
+            base.Deserialize(reader);
+
+            int version = reader.ReadInt();
+        }
+    }
+
+    public class BloodwoodBoard : BaseWoodenBoard
 	{
 		[Constructable]
 		public BloodwoodBoard()
@@ -186,7 +221,7 @@ namespace Server.Items
 		}
 	}
 
-	public class FrostwoodBoard : Board
+	public class FrostwoodBoard : BaseWoodenBoard
 	{
 		[Constructable]
 		public FrostwoodBoard()
@@ -220,7 +255,7 @@ namespace Server.Items
 		}
 	}
 
-	public class OakBoard : Board
+	public class OakBoard : BaseWoodenBoard
 	{
 		[Constructable]
 		public OakBoard()
@@ -254,7 +289,7 @@ namespace Server.Items
 		}
 	}
 
-	public class AshBoard : Board
+	public class AshBoard : BaseWoodenBoard
 	{
 		[Constructable]
 		public AshBoard()
@@ -288,7 +323,7 @@ namespace Server.Items
 		}
 	}
 
-	public class YewBoard : Board
+	public class YewBoard : BaseWoodenBoard
 	{
 		[Constructable]
 		public YewBoard()
