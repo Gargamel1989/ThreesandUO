@@ -82,8 +82,9 @@ namespace Server.Items
 		private SlayerName m_Slayer;
 		private SlayerName m_Slayer2;
 		private SkillMod m_SkillMod, m_MageMod;
-		private CraftResource m_Resource;
-		private bool m_PlayerConstructed;
+        private CraftResource m_Resource;
+        private CraftResource? m_Resource2;
+        private bool m_PlayerConstructed;
 
 		private bool m_Cursed; // Is this weapon cursed via Curse Weapon necromancer spell? Temporary; not serialized.
 		private bool m_Consecrated; // Is this weapon blessed via Consecrate Weapon paladin ability? Temporary; not serialized.
@@ -271,16 +272,23 @@ namespace Server.Items
 		{
 			get { return m_Slayer2; }
 			set { m_Slayer2 = value; InvalidateProperties(); }
-		}
+        }
 
-		[CommandProperty( AccessLevel.GameMaster )]
-		public CraftResource Resource
-		{
-			get{ return m_Resource; }
-			set{ UnscaleDurability(); m_Resource = value; Hue = CraftResources.GetHue( m_Resource ); InvalidateProperties(); ScaleDurability(); }
-		}
+        [CommandProperty(AccessLevel.GameMaster)]
+        public CraftResource Resource
+        {
+            get { return m_Resource; }
+            set { UnscaleDurability(); m_Resource = value; Hue = CraftResources.GetHue(m_Resource); InvalidateProperties(); ScaleDurability(); }
+        }
+        // TODO: Adapt all functions using Resource to also use Resource2
+        [CommandProperty(AccessLevel.GameMaster)]
+        public CraftResource? Resource2
+        {
+            get { return m_Resource2; }
+            set { UnscaleDurability(); m_Resource2 = value; InvalidateProperties(); ScaleDurability(); }
+        }
 
-		[CommandProperty( AccessLevel.GameMaster )]
+        [CommandProperty( AccessLevel.GameMaster )]
 		public WeaponDamageLevel DamageLevel
 		{
 			get{ return m_DamageLevel; }
@@ -2508,6 +2516,7 @@ namespace Server.Items
 			SetSaveFlag( ref flags, SaveFlag.Type,				m_Type != (WeaponType)(-1) );
 			SetSaveFlag( ref flags, SaveFlag.Animation,			m_Animation != (WeaponAnimation)(-1) );
 			SetSaveFlag( ref flags, SaveFlag.Resource,			m_Resource != CraftResource.Iron );
+			SetSaveFlag( ref flags, SaveFlag.Resource2,			m_Resource2 != null );
 			SetSaveFlag( ref flags, SaveFlag.xAttributes,		!m_AosAttributes.IsEmpty );
 			SetSaveFlag( ref flags, SaveFlag.xWeaponAttributes,	!m_AosWeaponAttributes.IsEmpty );
 			SetSaveFlag( ref flags, SaveFlag.PlayerConstructed,	m_PlayerConstructed );
@@ -2587,6 +2596,9 @@ namespace Server.Items
 			if ( GetSaveFlag( flags, SaveFlag.Resource ) )
 				writer.Write( (int) m_Resource );
 
+			if ( GetSaveFlag( flags, SaveFlag.Resource2 ) )
+				writer.Write( (int) m_Resource2 );
+
 			if ( GetSaveFlag( flags, SaveFlag.xAttributes ) )
 				m_AosAttributes.Serialize( writer );
 
@@ -2634,6 +2646,7 @@ namespace Server.Items
 			Type					= 0x00200000,
 			Animation				= 0x00400000,
 			Resource				= 0x00800000,
+			Resource2				= 0x00C00000,
 			xAttributes				= 0x01000000,
 			xWeaponAttributes		= 0x02000000,
 			PlayerConstructed		= 0x04000000,
@@ -2778,6 +2791,11 @@ namespace Server.Items
 						m_Resource = (CraftResource)reader.ReadInt();
 					else
 						m_Resource = CraftResource.Iron;
+
+					if ( GetSaveFlag( flags, SaveFlag.Resource2 ) )
+						m_Resource2 = (CraftResource)reader.ReadInt();
+					else
+						m_Resource2 = null;
 
 					if ( GetSaveFlag( flags, SaveFlag.xAttributes ) )
 						m_AosAttributes = new AosAttributes( this, reader );
@@ -3078,9 +3096,11 @@ namespace Server.Items
 				case CraftResource.BlueScales:		oreType = 1060815; break; // blue
 				default: oreType = 0; break;
 			}
-
-			if ( oreType != 0 )
+            
+            if ( oreType != 0 )
 				list.Add( 1053099, "#{0}\t{1}", oreType, GetNameString() ); // ~1_oretype~ ~2_armortype~
+            else if ( CraftResources.GetType( m_Resource ) == CraftResourceType.Wood )
+                list.Add( 1053099, "{0}\t{1}", String.Format("{0}{1}", CraftResources.GetName( m_Resource ), (m_Resource2 != null ? String.Format(" and {0}", CraftResources.GetName((CraftResource)m_Resource2)) : "")), GetNameString() );
 			else if ( Name == null )
 				list.Add( LabelNumber );
 			else
@@ -3463,7 +3483,6 @@ namespace Server.Items
 
 		public int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool, CraftItem craftItem, int resHue )
         {
-            // TODO: Adapt to use typeRes2
             Quality = (WeaponQuality)quality;
 
 			if ( makersMark )
@@ -3471,16 +3490,19 @@ namespace Server.Items
 
 			PlayerConstructed = true;
 
-			Type resourceType = typeRes;
+            Type resourceType = typeRes;
+            Type resourceType2 = typeRes2;
 
-			if ( resourceType == null )
+            if ( resourceType == null )
 				resourceType = craftItem.Resources.GetAt( 0 ).ItemType;
 
 			if ( Core.AOS )
 			{
 				Resource = CraftResources.GetFromType( resourceType );
+                if ( resourceType2 != null )
+                    Resource2 = CraftResources.GetFromType(resourceType2);
 
-				CraftContext context = craftSystem.GetContext( from );
+                CraftContext context = craftSystem.GetContext( from );
 
 				if ( context != null && context.DoNotColor )
 					Hue = 0;

@@ -393,7 +393,7 @@ namespace Server.Engines.Craft
 
 		public abstract TrapType TrapType{ get; }
 
-		public TrapCraft( Mobile from, CraftItem craftItem, CraftSystem craftSystem, Type typeRes, BaseTool tool, int quality ) : base( from, craftItem, craftSystem, typeRes, tool, quality )
+		public TrapCraft( Mobile from, CraftItem craftItem, CraftSystem craftSystem, Type typeRes, BaseTool tool, int quality ) : base( from, craftItem, craftSystem, typeRes, null, tool, quality )
 		{
 		}
 
