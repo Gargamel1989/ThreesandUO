@@ -128,7 +128,7 @@ namespace Server.Engines.Craft
 			return true;
 		}
 
-		public void CreateItem( Mobile from, Type type, Type typeRes, BaseTool tool, CraftItem realCraftItem )
+		public void CreateItem( Mobile from, Type type, Type typeRes, Type typeRes2, BaseTool tool, CraftItem realCraftItem )
 		{	
 			// Verify if the type is in the list of the craftable item
 			CraftItem craftItem = m_CraftItems.SearchFor( type );
@@ -136,7 +136,7 @@ namespace Server.Engines.Craft
 			{
 				// The item is in the list, try to create it
 				// Test code: items like sextant parts can be crafted either directly from ingots, or from different parts
-				realCraftItem.Craft( from, this, typeRes, tool );
+				realCraftItem.Craft( from, this, typeRes, typeRes2, tool );
 				//craftItem.Craft( from, this, typeRes, tool );
 			}
 		}
@@ -283,6 +283,12 @@ namespace Server.Engines.Craft
 			CraftItem craftItem = m_CraftItems.GetAt(index);
 			craftItem.UseSubRes2 = val;
 		}
+
+        public void SetUserBothSubRes( int index, bool val )
+        {
+            CraftItem craftItem = m_CraftItems.GetAt(index);
+            craftItem.UseBothSubRes = val;
+        }
 
 		private void AddRecipeBase( int index, int id )
 		{

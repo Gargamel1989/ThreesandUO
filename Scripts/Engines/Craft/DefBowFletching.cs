@@ -110,7 +110,10 @@ namespace Server.Engines.Craft
 			}
 
 			// Weapons
-			AddCraft( typeof( Bow ), 1044566, 1025042, 30.0, 70.0, typeof( Log ), 1044041, 7, 1044351 );
+			index = AddCraft( typeof( Bow ), 1044566, 1025042, 30.0, 70.0, typeof( Log ), 1044041, 7, 1044351 );
+            AddRes( index, typeof( IronIngot ), 1044036, 20, 1044037 );
+            SetUserBothSubRes( index, true );
+
 			AddCraft( typeof( Crossbow ), 1044566, 1023919, 60.0, 100.0, typeof( Log ), 1044041, 7, 1044351 );
 			AddCraft( typeof( HeavyCrossbow ), 1044566, 1025117, 80.0, 120.0, typeof( Log ), 1044041, 10, 1044351 );
 

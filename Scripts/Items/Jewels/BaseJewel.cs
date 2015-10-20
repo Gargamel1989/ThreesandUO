@@ -373,9 +373,10 @@ namespace Server.Items
 		}
 		#region ICraftable Members
 
-		public int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue )
-		{
-			Type resourceType = typeRes;
+		public int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool, CraftItem craftItem, int resHue )
+        {
+            // TODO: Adapt to use typeRes2
+            Type resourceType = typeRes;
 
 			if ( resourceType == null )
 				resourceType = craftItem.Resources.GetAt( 0 ).ItemType;

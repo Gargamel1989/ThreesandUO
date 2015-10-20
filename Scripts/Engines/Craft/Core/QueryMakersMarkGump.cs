@@ -11,10 +11,11 @@ namespace Server.Engines.Craft
 		private Mobile m_From;
 		private CraftItem m_CraftItem;
 		private CraftSystem m_CraftSystem;
-		private Type m_TypeRes;
-		private BaseTool m_Tool;
+        private Type m_TypeRes;
+        private Type m_TypeRes2;
+        private BaseTool m_Tool;
 
-		public QueryMakersMarkGump( int quality, Mobile from, CraftItem craftItem, CraftSystem craftSystem, Type typeRes, BaseTool tool ) : base( 100, 200 )
+		public QueryMakersMarkGump( int quality, Mobile from, CraftItem craftItem, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool ) : base( 100, 200 )
 		{
 			from.CloseGump( typeof( QueryMakersMarkGump ) );
 
@@ -22,8 +23,9 @@ namespace Server.Engines.Craft
 			m_From = from;
 			m_CraftItem = craftItem;
 			m_CraftSystem = craftSystem;
-			m_TypeRes = typeRes;
-			m_Tool = tool;
+            m_TypeRes = typeRes;
+            m_TypeRes2 = typeRes2;
+            m_Tool = tool;
 
 			AddPage( 0 );
 
@@ -48,7 +50,7 @@ namespace Server.Engines.Craft
 			else
 				m_From.SendLocalizedMessage( 501809 ); // Cancelled mark.
 
-			m_CraftItem.CompleteCraft( m_Quality, makersMark, m_From, m_CraftSystem, m_TypeRes, m_Tool, null );
+			m_CraftItem.CompleteCraft( m_Quality, makersMark, m_From, m_CraftSystem, m_TypeRes, m_TypeRes2, m_Tool, null );
 		}
 	}
 }

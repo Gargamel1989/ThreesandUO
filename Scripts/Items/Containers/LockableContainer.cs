@@ -358,9 +358,10 @@ namespace Server.Items
 
 		#region ICraftable Members
 
-		public int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue )
-		{
-			if ( from.CheckSkill( SkillName.Tinkering, -5.0, 15.0 ) )
+		public int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool, CraftItem craftItem, int resHue )
+        {
+            // TODO: Adapt to use typeRes2
+            if ( from.CheckSkill( SkillName.Tinkering, -5.0, 15.0 ) )
 			{
 				from.SendLocalizedMessage( 500636 ); // Your tinker skill was sufficient to make the item lockable.
 

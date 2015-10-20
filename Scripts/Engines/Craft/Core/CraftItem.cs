@@ -16,7 +16,7 @@ namespace Server.Engines.Craft
 
 	public interface ICraftable
 	{
-		int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue );
+		int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool, CraftItem craftItem, int resHue );
 	}
 
 	public class CraftItem
@@ -46,8 +46,9 @@ namespace Server.Engines.Craft
 		private bool m_NeedMill;
 
 		private bool m_UseSubRes2;
+        private bool m_UseBothSubRes;
 
-		private bool m_ForceNonExceptional;
+        private bool m_ForceNonExceptional;
 
 		public bool ForceNonExceptional
 		{
@@ -179,15 +180,21 @@ namespace Server.Engines.Craft
 		{
 			get { return m_Stam; }
 			set { m_Stam = value; }
-		}
+        }
 
-		public bool UseSubRes2
-		{
-			get { return m_UseSubRes2; }
-			set { m_UseSubRes2 = value; }
-		}
+        public bool UseSubRes2
+        {
+            get { return m_UseSubRes2; }
+            set { m_UseSubRes2 = value; }
+        }
 
-		public bool UseAllRes
+        public bool UseBothSubRes
+        {
+            get { return m_UseBothSubRes; }
+            set { m_UseBothSubRes = value; }
+        }
+
+        public bool UseAllRes
 		{
 			get { return m_UseAllRes; }
 			set { m_UseAllRes = value; }
@@ -610,14 +617,14 @@ namespace Server.Engines.Craft
 			return amount;
 		}
 
-		public bool ConsumeRes( Mobile from, Type typeRes, CraftSystem craftSystem, ref int resHue, ref int maxAmount, ConsumeType consumeType, ref object message )
+		public bool ConsumeRes( Mobile from, Type typeRes, Type typeRes2, CraftSystem craftSystem, ref int resHue, ref int maxAmount, ConsumeType consumeType, ref object message )
 		{
-			return ConsumeRes( from, typeRes, craftSystem, ref resHue, ref maxAmount, consumeType, ref message, false );
+			return ConsumeRes( from, typeRes, typeRes2, craftSystem, ref resHue, ref maxAmount, consumeType, ref message, false );
 		}
 
-		public bool ConsumeRes( Mobile from, Type typeRes, CraftSystem craftSystem, ref int resHue, ref int maxAmount, ConsumeType consumeType, ref object message, bool isFailure )
-		{
-			Container ourPack = from.Backpack;
+		public bool ConsumeRes( Mobile from, Type typeRes, Type typeRes2, CraftSystem craftSystem, ref int resHue, ref int maxAmount, ConsumeType consumeType, ref object message, bool isFailure )
+        {
+            Container ourPack = from.Backpack;
 
 			if ( ourPack == null )
 				return false;
@@ -646,14 +653,15 @@ namespace Server.Engines.Craft
 			maxAmount = int.MaxValue;
 
 			CraftSubResCol resCol = ( m_UseSubRes2 ? craftSystem.CraftSubRes2 : craftSystem.CraftSubRes );
+            CraftSubResCol res2Col = ( m_UseBothSubRes ? ( m_UseSubRes2 ? craftSystem.CraftSubRes : craftSystem.CraftSubRes2 ) : null );
 
 			for ( int i = 0; i < types.Length; ++i )
 			{
 				CraftRes craftRes = m_arCraftRes.GetAt( i );
-				Type baseType = craftRes.ItemType;
+                Type baseType = craftRes.ItemType;
 
-				// Resource Mutation
-				if ( (baseType == resCol.ResType) && ( typeRes != null ) )
+                // Resource Mutation
+                if ( (baseType == resCol.ResType) && ( typeRes != null ) )
 				{
 					baseType = typeRes;
 
@@ -664,10 +672,22 @@ namespace Server.Engines.Craft
 						message = subResource.Message;
 						return false;
 					}
-				}
-				// ******************
+                }
+                else if ((baseType == res2Col.ResType) && (typeRes2 != null))
+                {
+                    baseType = typeRes2;
 
-				for ( int j = 0; types[i] == null && j < m_TypesTable.Length; ++j )
+                    CraftSubRes subResource = res2Col.SearchFor(baseType);
+
+                    if (subResource != null && from.Skills[craftSystem.MainSkill].Base < subResource.RequiredSkill)
+                    {
+                        message = subResource.Message;
+                        return false;
+                    }
+                }
+                // ******************
+
+                for ( int j = 0; types[i] == null && j < m_TypesTable.Length; ++j )
 				{
 					if ( m_TypesTable[j][0] == baseType )
 						types[i] = m_TypesTable[j];
@@ -894,14 +914,14 @@ namespace Server.Engines.Craft
 			return chance;
 		}
 
-		public bool CheckSkills( Mobile from, Type typeRes, CraftSystem craftSystem, ref int quality, ref bool allRequiredSkills )
+		public bool CheckSkills( Mobile from, Type typeRes, Type typeRes2, CraftSystem craftSystem, ref int quality, ref bool allRequiredSkills )
 		{
-			return CheckSkills( from, typeRes, craftSystem, ref quality, ref allRequiredSkills, true );
+			return CheckSkills( from, typeRes, typeRes2, craftSystem, ref quality, ref allRequiredSkills, true );
 		}
 
-		public bool CheckSkills( Mobile from, Type typeRes, CraftSystem craftSystem, ref int quality, ref bool allRequiredSkills, bool gainSkills )
-		{
-			double chance = GetSuccessChance( from, typeRes, craftSystem, gainSkills, ref allRequiredSkills );
+		public bool CheckSkills( Mobile from, Type typeRes, Type typeRes2, CraftSystem craftSystem, ref int quality, ref bool allRequiredSkills, bool gainSkills )
+        {
+            double chance = GetSuccessChance( from, typeRes, typeRes2, craftSystem, gainSkills, ref allRequiredSkills );
 
 			if ( GetExceptionalChance( craftSystem, chance, from ) > Utility.RandomDouble() )
 				quality = 2;
@@ -909,9 +929,9 @@ namespace Server.Engines.Craft
 			return ( chance > Utility.RandomDouble() );
 		}
 
-		public double GetSuccessChance( Mobile from, Type typeRes, CraftSystem craftSystem, bool gainSkills, ref bool allRequiredSkills )
+		public double GetSuccessChance( Mobile from, Type typeRes, Type typeRes2, CraftSystem craftSystem, bool gainSkills, ref bool allRequiredSkills )
 		{
-			double minMainSkill = 0.0;
+            double minMainSkill = 0.0;
 			double maxMainSkill = 0.0;
 			double valMainSkill = 0.0;
 
@@ -960,14 +980,14 @@ namespace Server.Engines.Craft
 			return chance;
 		}
 
-		public void Craft( Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool )
+		public void Craft( Mobile from, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool )
 		{
 			if ( from.BeginAction( typeof( CraftSystem ) ) )
 			{
 				if( RequiredExpansion == Expansion.None || ( from.NetState != null && from.NetState.SupportsExpansion( RequiredExpansion ) ) )
 				{
 					bool allRequiredSkills = true;
-					double chance = GetSuccessChance( from, typeRes, craftSystem, false, ref allRequiredSkills );
+					double chance = GetSuccessChance( from, typeRes, typeRes2, craftSystem, false, ref allRequiredSkills );
 
 					if ( allRequiredSkills && chance >= 0.0 )
 					{
@@ -981,7 +1001,7 @@ namespace Server.Engines.Craft
 								int maxAmount = 0;
 								object message = null;
 
-								if( ConsumeRes( from, typeRes, craftSystem, ref resHue, ref maxAmount, ConsumeType.None, ref message ) )
+								if( ConsumeRes( from, typeRes, typeRes2, craftSystem, ref resHue, ref maxAmount, ConsumeType.None, ref message ) )
 								{
 									message = null;
 
@@ -996,7 +1016,7 @@ namespace Server.Engines.Craft
 										int iMax = (craftSystem.MaxCraftEffect - iMin) + 1;
 										int iRandom = Utility.Random( iMax );
 										iRandom += iMin + 1;
-										new InternalTimer( from, craftSystem, this, typeRes, tool, iRandom ).Start();
+										new InternalTimer( from, craftSystem, this, typeRes, typeRes2, tool, iRandom ).Start();
 									}
 									else
 									{
@@ -1053,9 +1073,9 @@ namespace Server.Engines.Craft
 			}
 		}
 
-		public void CompleteCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CustomCraft customCraft )
-		{
-			int badCraft = craftSystem.CanCraft( from, tool, m_Type );
+		public void CompleteCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool, CustomCraft customCraft )
+        {
+            int badCraft = craftSystem.CanCraft( from, tool, m_Type );
 
 			if ( badCraft > 0 )
 			{
@@ -1071,7 +1091,7 @@ namespace Server.Engines.Craft
 			object checkMessage = null;
 
 			// Not enough resource to craft it
-			if ( !ConsumeRes( from, typeRes, craftSystem, ref checkResHue, ref checkMaxAmount, ConsumeType.None, ref checkMessage ) )
+			if ( !ConsumeRes( from, typeRes, typeRes2, craftSystem, ref checkResHue, ref checkMaxAmount, ConsumeType.None, ref checkMessage ) )
 			{
 				if ( tool != null && !tool.Deleted && tool.UsesRemaining > 0 )
 					from.SendGump( new CraftGump( from, craftSystem, tool, checkMessage ) );
@@ -1101,7 +1121,7 @@ namespace Server.Engines.Craft
 
 			bool allRequiredSkills = true;
 
-			if ( CheckSkills( from, typeRes, craftSystem, ref ignored, ref allRequiredSkills ) )
+			if ( CheckSkills( from, typeRes, typeRes2, craftSystem, ref ignored, ref allRequiredSkills ) )
 			{
 				// Resource
 				int resHue = 0;
@@ -1110,7 +1130,7 @@ namespace Server.Engines.Craft
 				object message = null;
 
 				// Not enough resource to craft it
-				if ( !ConsumeRes( from, typeRes, craftSystem, ref resHue, ref maxAmount, ConsumeType.All, ref message ) )
+				if ( !ConsumeRes( from, typeRes, typeRes2, craftSystem, ref resHue, ref maxAmount, ConsumeType.All, ref message ) )
 				{
 					if ( tool != null && !tool.Deleted && tool.UsesRemaining > 0 )
 						from.SendGump( new CraftGump( from, craftSystem, tool, message ) );
@@ -1171,8 +1191,8 @@ namespace Server.Engines.Craft
 
 				if ( item != null )
 				{
-					if( item is ICraftable )
-						endquality = ((ICraftable)item).OnCraft( quality, makersMark, from, craftSystem, typeRes, tool, this, resHue );
+                    if ( item is ICraftable )
+						endquality = ((ICraftable)item).OnCraft( quality, makersMark, from, craftSystem, typeRes, typeRes2, tool, this, resHue );
 					else if ( item.Hue == 0 )
 						item.Hue = resHue;
 
@@ -1253,7 +1273,7 @@ namespace Server.Engines.Craft
 				object message = null;
 
 				// Not enough resource to craft it
-				if ( !ConsumeRes( from, typeRes, craftSystem, ref resHue, ref maxAmount, consumeType, ref message, true ) )
+				if ( !ConsumeRes( from, typeRes, typeRes2, craftSystem, ref resHue, ref maxAmount, consumeType, ref message, true ) )
 				{
 					if ( tool != null && !tool.Deleted && tool.UsesRemaining > 0 )
 						from.SendGump( new CraftGump( from, craftSystem, tool, message ) );
@@ -1284,24 +1304,26 @@ namespace Server.Engines.Craft
 		}
 
 		private class InternalTimer : Timer
-		{
-			private Mobile m_From;
+        {
+            private Mobile m_From;
 			private int m_iCount;
 			private int m_iCountMax;
 			private CraftItem m_CraftItem;
 			private CraftSystem m_CraftSystem;
-			private Type m_TypeRes;
-			private BaseTool m_Tool;
+            private Type m_TypeRes;
+            private Type m_TypeRes2;
+            private BaseTool m_Tool;
 
-			public InternalTimer( Mobile from, CraftSystem craftSystem, CraftItem craftItem, Type typeRes, BaseTool tool, int iCountMax ) : base( TimeSpan.Zero, TimeSpan.FromSeconds( craftSystem.Delay ), iCountMax )
+			public InternalTimer( Mobile from, CraftSystem craftSystem, CraftItem craftItem, Type typeRes, Type typeRes2, BaseTool tool, int iCountMax ) : base( TimeSpan.Zero, TimeSpan.FromSeconds( craftSystem.Delay ), iCountMax )
 			{
 				m_From = from;
 				m_CraftItem = craftItem;
 				m_iCount = 0;
 				m_iCountMax = iCountMax;
 				m_CraftSystem = craftSystem;
-				m_TypeRes = typeRes;
-				m_Tool = tool;
+                m_TypeRes = typeRes;
+                m_TypeRes2 = typeRes2;
+                m_Tool = tool;
 			}
 
 			protected override void OnTick()
@@ -1333,7 +1355,7 @@ namespace Server.Engines.Craft
 					int quality = 1;
 					bool allRequiredSkills = true;
 
-					m_CraftItem.CheckSkills( m_From, m_TypeRes, m_CraftSystem, ref quality, ref allRequiredSkills, false );
+					m_CraftItem.CheckSkills( m_From, m_TypeRes, m_TypeRes2, m_CraftSystem, ref quality, ref allRequiredSkills, false );
 
 					CraftContext context = m_CraftSystem.GetContext( m_From );
 
@@ -1344,7 +1366,7 @@ namespace Server.Engines.Craft
 					{
 						CustomCraft cc = null;
 
-						try{ cc = Activator.CreateInstance( m_CraftItem.ItemType, new object[] { m_From, m_CraftItem, m_CraftSystem, m_TypeRes, m_Tool, quality } ) as CustomCraft; }
+                        try { cc = Activator.CreateInstance( m_CraftItem.ItemType, new object[] { m_From, m_CraftItem, m_CraftSystem, m_TypeRes, m_TypeRes2, m_Tool, quality } ) as CustomCraft; }
 						catch{}
 
 						if ( cc != null )
@@ -1360,14 +1382,14 @@ namespace Server.Engines.Craft
 
 					if ( makersMark && context.MarkOption == CraftMarkOption.PromptForMark )
 					{
-						m_From.SendGump( new QueryMakersMarkGump( quality, m_From, m_CraftItem, m_CraftSystem, m_TypeRes, m_Tool ) );
+						m_From.SendGump( new QueryMakersMarkGump( quality, m_From, m_CraftItem, m_CraftSystem, m_TypeRes, m_TypeRes2, m_Tool ) );
 					}
 					else
 					{
 						if ( context.MarkOption == CraftMarkOption.DoNotMark )
 							makersMark = false;
 
-						m_CraftItem.CompleteCraft( quality, makersMark, m_From, m_CraftSystem, m_TypeRes, m_Tool, null );
+						m_CraftItem.CompleteCraft( quality, makersMark, m_From, m_CraftSystem, m_TypeRes, m_TypeRes2, m_Tool, null );
 					}
 				}
 			}

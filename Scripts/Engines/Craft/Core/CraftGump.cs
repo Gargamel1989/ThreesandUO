@@ -374,10 +374,11 @@ namespace Server.Engines.Craft
 				m_From.SendGump( new CraftGump( m_From, m_CraftSystem, m_Tool, num ) );
 			}
 			else
-			{
-				Type type = null;
+            {
+                Type type = null;
+                Type type2 = null;
 
-				CraftContext context = m_CraftSystem.GetContext( m_From );
+                CraftContext context = m_CraftSystem.GetContext( m_From );
 
 				if ( context != null )
 				{
@@ -386,9 +387,18 @@ namespace Server.Engines.Craft
 
 					if ( resIndex >= 0 && resIndex < res.Count )
 						type = res.GetAt( resIndex ).ItemType;
+
+                    if ( item.UseBothSubRes )
+                    {
+                        CraftSubResCol res2 = (item.UseSubRes2 ? m_CraftSystem.CraftSubRes : m_CraftSystem.CraftSubRes2 );
+					    int res2Index = (item.UseSubRes2 ? context.LastResourceIndex : context.LastResourceIndex2 );
+
+					    if ( res2Index >= 0 && res2Index < res2.Count )
+    						type2 = res2.GetAt( res2Index ).ItemType;
+                    }
 				}
 
-				m_CraftSystem.CreateItem( m_From, item.ItemType, type, m_Tool, item );
+				m_CraftSystem.CreateItem( m_From, item.ItemType, type, type2, m_Tool, item );
 			}
 		}
 

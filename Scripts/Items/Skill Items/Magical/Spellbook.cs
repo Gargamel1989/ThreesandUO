@@ -863,7 +863,7 @@ namespace Server.Items
 				1								// 1 property   : 1/4 : 25%
 			};
 
-		public virtual int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue )
+		public virtual int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool, CraftItem craftItem, int resHue )
 		{
 			int magery = from.Skills.Magery.BaseFixedPoint;
 

@@ -93,7 +93,7 @@ namespace Server.Items
 			}
 		}
 
-		public int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue )
+		public int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool, CraftItem craftItem, int resHue )
 		{
 			if ( quality == 2 )
 				UsesRemaining *= 2;

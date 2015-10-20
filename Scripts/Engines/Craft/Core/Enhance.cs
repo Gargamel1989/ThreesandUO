@@ -23,6 +23,7 @@ namespace Server.Engines.Craft
 	{
 		public static EnhanceResult Invoke( Mobile from, CraftSystem craftSystem, BaseTool tool, Item item, CraftResource resource, Type resType, ref object resMessage )
 		{
+            // TODO: Eventually adapt to use resType2 as well (Search for RESTYPE_ADAPT)
 			if ( item == null )
 				return EnhanceResult.BadItem;
 
@@ -56,7 +57,8 @@ namespace Server.Engines.Craft
 				return EnhanceResult.BadItem;
 
 			bool allRequiredSkills = false;
-			if( craftItem.GetSuccessChance( from, resType, craftSystem, false, ref allRequiredSkills ) <= 0.0 )
+            // RESTYPE_ADAPT
+            if ( craftItem.GetSuccessChance( from, resType, null, craftSystem, false, ref allRequiredSkills ) <= 0.0 )
 				return EnhanceResult.NoSkill;
 
 			CraftResourceInfo info = CraftResources.GetInfo( resource );
@@ -71,7 +73,8 @@ namespace Server.Engines.Craft
 
 			int resHue = 0, maxAmount = 0;
 
-			if ( !craftItem.ConsumeRes( from, resType, craftSystem, ref resHue, ref maxAmount, ConsumeType.None, ref resMessage ) )
+            // RESTYPE_ADAPT
+            if ( !craftItem.ConsumeRes( from, resType, null, craftSystem, ref resHue, ref maxAmount, ConsumeType.None, ref resMessage ) )
 				return EnhanceResult.NoResources;
 
 			if ( craftSystem is DefBlacksmithy )
@@ -192,7 +195,8 @@ namespace Server.Engines.Craft
 			{
 				case EnhanceResult.Broken:
 				{
-					if ( !craftItem.ConsumeRes( from, resType, craftSystem, ref resHue, ref maxAmount, ConsumeType.Half, ref resMessage ) )
+                    // RESTYPE_ADAPT
+					if ( !craftItem.ConsumeRes( from, resType, null, craftSystem, ref resHue, ref maxAmount, ConsumeType.Half, ref resMessage ) )
 						return EnhanceResult.NoResources;
 
 					item.Delete();
@@ -200,7 +204,8 @@ namespace Server.Engines.Craft
 				}
 				case EnhanceResult.Success:
 				{
-					if ( !craftItem.ConsumeRes( from, resType, craftSystem, ref resHue, ref maxAmount, ConsumeType.All, ref resMessage ) )
+                    // RESTYPE_ADAPT
+            		if ( !craftItem.ConsumeRes( from, resType, null, craftSystem, ref resHue, ref maxAmount, ConsumeType.All, ref resMessage ) )
 						return EnhanceResult.NoResources;
 
 					if( item is BaseWeapon )
@@ -222,7 +227,8 @@ namespace Server.Engines.Craft
 				}
 				case EnhanceResult.Failure:
 				{
-					if ( !craftItem.ConsumeRes( from, resType, craftSystem, ref resHue, ref maxAmount, ConsumeType.Half, ref resMessage ) )
+                    // RESTYPE_ADAPT
+                    if ( !craftItem.ConsumeRes( from, resType, null, craftSystem, ref resHue, ref maxAmount, ConsumeType.Half, ref resMessage ) )
 						return EnhanceResult.NoResources;
 
 					break;

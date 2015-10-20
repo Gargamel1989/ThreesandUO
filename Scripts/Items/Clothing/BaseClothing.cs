@@ -1004,9 +1004,10 @@ namespace Server.Items
 
 		#region ICraftable Members
 
-		public virtual int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue )
-		{
-			Quality = (ClothingQuality)quality;
+		public virtual int OnCraft( int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, Type typeRes2, BaseTool tool, CraftItem craftItem, int resHue )
+        {
+            // TODO: Adapt to use typeRes2
+            Quality = (ClothingQuality)quality;
 
 			if ( makersMark )
 				Crafter = from;

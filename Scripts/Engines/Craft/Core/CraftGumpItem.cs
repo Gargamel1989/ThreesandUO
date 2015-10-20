@@ -145,16 +145,23 @@ namespace Server.Engines.Craft
 				AddLabel( 430, 132 + (i * 20), LabelHue, String.Format( "{0:F1}", minSkill ) );
 			}
 
-			CraftSubResCol res = ( m_CraftItem.UseSubRes2 ? m_CraftSystem.CraftSubRes2 : m_CraftSystem.CraftSubRes );
-			int resIndex = -1;
+            CraftSubResCol res = (m_CraftItem.UseSubRes2 ? m_CraftSystem.CraftSubRes2 : m_CraftSystem.CraftSubRes);
+            int resIndex = -1;
+            CraftSubResCol res2 = (m_CraftItem.UseSubRes2 ? m_CraftSystem.CraftSubRes : m_CraftSystem.CraftSubRes2);
+            int res2Index = -1;
 
-			CraftContext context = m_CraftSystem.GetContext( m_From );
+            CraftContext context = m_CraftSystem.GetContext( m_From );
 
 			if ( context != null )
+            { 
 				resIndex = ( m_CraftItem.UseSubRes2 ? context.LastResourceIndex2 : context.LastResourceIndex );
+                if ( m_CraftItem.UseBothSubRes)
+                    res2Index = ( m_CraftItem.UseSubRes2 ? context.LastResourceIndex : context.LastResourceIndex2);
+            }  
+                
 
 			bool allRequiredSkills = true;
-			double chance = m_CraftItem.GetSuccessChance( m_From, resIndex > -1 ? res.GetAt( resIndex ).ItemType : null, m_CraftSystem, false, ref allRequiredSkills );
+			double chance = m_CraftItem.GetSuccessChance( m_From, resIndex > -1 ? res.GetAt( resIndex ).ItemType : null, res2Index > -1 ? res2.GetAt(res2Index).ItemType : null, m_CraftSystem, false, ref allRequiredSkills );
 			double excepChance = m_CraftItem.GetExceptionalChance( m_CraftSystem, chance, m_From );
 
 			if ( chance < 0.0 )
@@ -267,19 +274,29 @@ namespace Server.Engines.Craft
 				else
 				{
 					Type type = null;
+                    Type type2 = null;
 
-					CraftContext context = m_CraftSystem.GetContext( m_From );
+                    CraftContext context = m_CraftSystem.GetContext(m_From);
 
-					if ( context != null )
-					{
-						CraftSubResCol res = ( m_CraftItem.UseSubRes2 ? m_CraftSystem.CraftSubRes2 : m_CraftSystem.CraftSubRes );
-						int resIndex = ( m_CraftItem.UseSubRes2 ? context.LastResourceIndex2 : context.LastResourceIndex );
+                    if (context != null)
+                    {
+                        CraftSubResCol res = (m_CraftItem.UseSubRes2 ? m_CraftSystem.CraftSubRes2 : m_CraftSystem.CraftSubRes);
+                        int resIndex = (m_CraftItem.UseSubRes2 ? context.LastResourceIndex2 : context.LastResourceIndex);
 
-						if ( resIndex > -1 )
-							type = res.GetAt( resIndex ).ItemType;
-					}
+                        if (resIndex >= 0 && resIndex < res.Count)
+                            type = res.GetAt(resIndex).ItemType;
 
-					m_CraftSystem.CreateItem( m_From, m_CraftItem.ItemType, type, m_Tool, m_CraftItem );
+                        if (m_CraftItem.UseBothSubRes)
+                        {
+                            CraftSubResCol res2 = (m_CraftItem.UseSubRes2 ? m_CraftSystem.CraftSubRes : m_CraftSystem.CraftSubRes2);
+                            int res2Index = (m_CraftItem.UseSubRes2 ? context.LastResourceIndex : context.LastResourceIndex2);
+
+                            if (res2Index >= 0 && res2Index < res2.Count)
+                                type2 = res2.GetAt(res2Index).ItemType;
+                        }
+                    }
+
+                    m_CraftSystem.CreateItem( m_From, m_CraftItem.ItemType, type, type2, m_Tool, m_CraftItem );
 				}
 			}
 		}
