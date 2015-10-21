@@ -3061,6 +3061,7 @@
     <Compile Include="Multis\HouseTeleporter.cs" />
     <Compile Include="Multis\MovingCrate.cs" />
     <Compile Include="Multis\PreviewHouse.cs" />
+    <Compile Include="New Items\Tinker tool\BowEnchtingTool.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regions\BaseRegion.cs" />
     <Compile Include="Regions\DungeonRegion.cs" />
