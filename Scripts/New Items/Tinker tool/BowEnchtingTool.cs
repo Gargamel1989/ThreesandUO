@@ -7,14 +7,15 @@ namespace Server.Items
 {
     class BowEnchtingTool : Item
     {
+
         [Constructable]
-        public BowEnchtingTool() : base( 0x1EB8 )
-		{
+        public BowEnchtingTool() : base(0x1EB8)
+        {
             Weight = 1.0;
         }
 
-        public BowEnchtingTool(Serial serial) : base( serial )
-		{
+        public BowEnchtingTool(Serial serial) : base(serial)
+        {
         }
 
         public override void Serialize(GenericWriter writer)
@@ -33,34 +34,73 @@ namespace Server.Items
 
         public override void OnDoubleClick(Mobile from)
         {
-            from.SendMessage("Select a bow you which to enchant"); // What should I use these scissors on?
+            from.SendMessage("Select a bow you which to enchant");
 
-            from.Target = new InternalTarget(this);
+            from.Target = new BownTarget(this);
         }
 
-        private class InternalTarget : Target
+        private class BownTarget : Target
         {
-            private BowEnchtingTool m_Item;
-
-            public InternalTarget ( BowEnchtingTool item) : base (2 , false, TargetFlags.None)
+            public BownTarget(BowEnchtingTool item) : base(2, false, TargetFlags.None)
             {
-                m_Item = item;
             }
 
-            protected override void OnTarget(Mobile from, object targeted)
+            protected override void OnTarget(Mobile from, object targ)
             {
-                if (m_Item.Deleted)
-                    return;
-                if (targeted.GetType() == typeof(Bow))
+                if (targ is Bow)
                 {
-                    from.SendMessage("You have selected a bow");
-                    from.SendMessage(targeted.ToString());
-                }
-                else
-                {
-                    from.SendMessage("This tool can not be used on that to produce anything."); 
+                    BaseWeapon bow = (BaseWeapon)targ;
+                    if ( !bow.Resource2.HasValue)
+                        from.Target = new InternalTarget(bow);
+                    else
+                    {
+                        from.SendMessage("This bow is already enchanted");
+                    }
+
                 }
             }
-        }
+
+
+            private class InternalTarget : Target
+            {
+                private BaseWeapon i_bow;
+                public InternalTarget(BaseWeapon b) : base(10, false, TargetFlags.None)
+                {
+                    i_bow = b;
+                }
+
+                protected override void OnTarget(Mobile from, object targeted)
+                {
+                    int amount = 0;
+                    Type type;
+                    Container ourPack = from.Backpack;
+                    if (targeted is IronIngot)
+                    {
+                        IronIngot res = (IronIngot)targeted;
+                        from.SendMessage("Iron selected");
+                        i_bow.MaxDamage += 5;
+                        i_bow.Hue = res.Hue;
+                        i_bow.Resource2 = CraftResource.Iron;
+                    }
+                    if (targeted is BronzeIngot)
+                    {
+                        BronzeIngot res = (BronzeIngot)targeted;
+                        from.SendMessage("Bronze selected");
+                        i_bow.MaxDamage += 10;
+                        i_bow.Hue = res.Hue;
+                        i_bow.Resource2 = CraftResource.Bronze;
+                        if (res.Amount > 1)
+                        {
+                            res.Amount -= 1;
+                        }
+                        else
+                        {
+                            res.Delete();
+                        }
+                    }
+                }
+            }
+
+        } 
     }
 }
