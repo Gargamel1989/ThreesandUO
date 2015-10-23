@@ -8,7 +8,7 @@ namespace Server.Items
     class BowEnchtingTool : Item
     {
         [Constructable]
-        public BowEnchtingTool() : base( 0xF9F )
+        public BowEnchtingTool() : base( 0x1EB8 )
 		{
             Weight = 1.0;
         }
@@ -53,11 +53,14 @@ namespace Server.Items
                     return;
                 if (targeted.GetType() == typeof(Bow))
                 {
-                    Console.Write("You selected a bow");
+                    from.SendMessage("You have selected a bow");
+                    from.SendMessage(targeted.ToString());
+                }
+                else
+                {
+                    from.SendMessage("This tool can not be used on that to produce anything."); 
                 }
             }
-
-            
         }
     }
 }
