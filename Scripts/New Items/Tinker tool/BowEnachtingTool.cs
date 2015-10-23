@@ -9,9 +9,12 @@ namespace Server.Items
     {
 
         [Constructable]
-        public BowCraftingTool() : base(0x1EB8)
+        public BowCraftingTool()
         {
+            Name = "BowCrafting Toolkit";
             Weight = 1.0;
+            Movable = true;
+            ItemID = 7864;
         }
 
         public BowCraftingTool(Serial serial) : base(serial)
