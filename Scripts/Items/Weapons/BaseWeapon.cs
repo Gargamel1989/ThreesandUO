@@ -3411,9 +3411,8 @@ namespace Server.Items
 				else if ( LootType == LootType.Cursed )
 					attrs.Add( new EquipInfoAttribute( 1049643 ) ); // cursed
 			}
-
-			#region Factions
-			if ( m_FactionState != null )
+            #region Factions
+            if ( m_FactionState != null )
 				attrs.Add( new EquipInfoAttribute( 1041350 ) ); // faction item
 			#endregion
 
@@ -3469,7 +3468,7 @@ namespace Server.Items
 			EquipmentInfo eqInfo = new EquipmentInfo( number, m_Crafter, false, attrs.ToArray() );
 
 			from.Send( new DisplayEquipmentInfo( this, eqInfo ) );
-		}
+        }
 
 		private static BaseWeapon m_Fists; // This value holds the default--fist--weapon
 

@@ -5,16 +5,16 @@ using Server.Mobiles;
 
 namespace Server.Items
 {
-    class BowEnchtingTool : Item
+    class BowCraftingTool : Item
     {
 
         [Constructable]
-        public BowEnchtingTool() : base(0x1EB8)
+        public BowCraftingTool() : base(0x1EB8)
         {
             Weight = 1.0;
         }
 
-        public BowEnchtingTool(Serial serial) : base(serial)
+        public BowCraftingTool(Serial serial) : base(serial)
         {
         }
 
@@ -41,7 +41,7 @@ namespace Server.Items
 
         private class BownTarget : Target
         {
-            public BownTarget(BowEnchtingTool item) : base(2, false, TargetFlags.None)
+            public BownTarget(BowCraftingTool item) : base(2, false, TargetFlags.None)
             {
             }
 
@@ -50,12 +50,15 @@ namespace Server.Items
                 if (targ is Bow)
                 {
                     BaseWeapon bow = (BaseWeapon)targ;
-                    if ( !bow.Resource2.HasValue)
+                    if (!bow.Resource2.HasValue)
+                    { 
+                        from.SendMessage("Select an ingot to echant the bow with");
                         from.Target = new InternalTarget(bow);
-                    else
-                    {
-                        from.SendMessage("This bow is already enchanted");
                     }
+                else
+                {
+                    from.SendMessage("This bow is already enchanted");
+                }
 
                 }
             }
@@ -71,36 +74,173 @@ namespace Server.Items
 
                 protected override void OnTarget(Mobile from, object targeted)
                 {
-                    int amount = 0;
-                    Type type;
+                    String resourceName = "";
                     Container ourPack = from.Backpack;
-                    if (targeted is IronIngot)
+
+                    CraftResource thisResource = CraftResources.GetFromType(targeted.GetType());
+
+                    BaseIngot bier;
+
+                    switch (thisResource)
                     {
-                        IronIngot res = (IronIngot)targeted;
-                        from.SendMessage("Iron selected");
-                        i_bow.MaxDamage += 5;
-                        i_bow.Hue = res.Hue;
-                        i_bow.Resource2 = CraftResource.Iron;
+                        case CraftResource.Iron:
+                            {
+                                IronIngot res = (IronIngot)targeted;
+                                resourceName = "Iron";
+                                i_bow.MaxDamage += 5;
+                                i_bow.Hue = res.Hue;
+                                i_bow.Resource2 = CraftResource.Iron;
+                                if (res.Amount > 1)
+                                {
+                                    res.Amount -= 1;
+                                }
+                                else
+                                {
+                                    res.Delete();
+                                }
+                                break;
+                            }
+                        case CraftResource.DullCopper:
+                            {
+                                DullCopperIngot res = (DullCopperIngot)targeted;
+                                resourceName = "DullCopper";
+                                i_bow.MaxDamage += 5;
+                                i_bow.Hue = res.Hue;
+                                i_bow.Resource2 = CraftResource.DullCopper;
+                                if (res.Amount > 1)
+                                {
+                                    res.Amount -= 1;
+                                }
+                                else
+                                {
+                                    res.Delete();
+                                }
+                                break;
+                            }
+                        case CraftResource.ShadowIron:
+                            {
+
+                                ShadowIronIngot res = (ShadowIronIngot)targeted;
+                                resourceName = "ShadowIron";
+                                i_bow.MaxDamage += 5;
+                                i_bow.Hue = res.Hue;
+                                i_bow.Resource2 = CraftResource.ShadowIron;
+                                if (res.Amount > 1)
+                                {
+                                    res.Amount -= 1;
+                                }
+                                else
+                                {
+                                    res.Delete();
+                                }
+                                break;
+                            }
+                        case CraftResource.Copper:
+                            {
+                                ShadowIronIngot res = (ShadowIronIngot)targeted;
+                                resourceName = "ShadowIron";
+                                i_bow.MaxDamage += 5;
+                                i_bow.Hue = res.Hue;
+                                i_bow.Resource2 = CraftResource.ShadowIron;
+                                if (res.Amount > 1)
+                                {
+                                    res.Amount -= 1;
+                                }
+                                else
+                                {
+                                    res.Delete();
+                                }
+                                break;
+                            }
+                        case CraftResource.Bronze:
+                            {
+                                BronzeIngot res = (BronzeIngot)targeted;
+                                resourceName = "Bronze";
+                                i_bow.MaxDamage += 5;
+                                i_bow.Hue = res.Hue;
+                                i_bow.Resource2 = CraftResource.Bronze;
+                                if (res.Amount > 1)
+                                {
+                                    res.Amount -= 1;
+                                }
+                                else
+                                {
+                                    res.Delete();
+                                }
+                                break;
+                            }
+                        case CraftResource.Gold:
+                            {
+                                GoldIngot res = (GoldIngot)targeted;
+                                resourceName = "Gold";
+                                i_bow.MaxDamage += 5;
+                                i_bow.Hue = res.Hue;
+                                i_bow.Resource2 = CraftResource.Gold;
+                                if (res.Amount > 1)
+                                {
+                                    res.Amount -= 1;
+                                }
+                                else
+                                {
+                                    res.Delete();
+                                }
+                                break;
+                            }
+                        case CraftResource.Agapite:
+                            {
+                                AgapiteIngot res = (AgapiteIngot)targeted;
+                                resourceName = "Agapite";
+                                i_bow.MaxDamage += 5;
+                                i_bow.Hue = res.Hue;
+                                i_bow.Resource2 = CraftResource.Agapite;
+                                if (res.Amount > 1)
+                                {
+                                    res.Amount -= 1;
+                                }
+                                else
+                                {
+                                    res.Delete();
+                                }
+                                break;
+                            }
+                        case CraftResource.Verite:
+                            {
+                                VeriteIngot res = (VeriteIngot)targeted;
+                                resourceName = "Verite";
+                                i_bow.MaxDamage += 5;
+                                i_bow.Hue = res.Hue;
+                                i_bow.Resource2 = CraftResource.Verite;
+                                if (res.Amount > 1)
+                                {
+                                    res.Amount -= 1;
+                                }
+                                else
+                                {
+                                    res.Delete();
+                                }
+                                break;
+                            }
+                        case CraftResource.Valorite:
+                            {
+                                ValoriteIngot res = (ValoriteIngot)targeted;
+                                resourceName = "Valorite";
+                                i_bow.MaxDamage += 5;
+                                i_bow.Hue = res.Hue;
+                                i_bow.Resource2 = CraftResource.Valorite;
+                                if (res.Amount > 1)
+                                {
+                                    res.Amount -= 1;
+                                }
+                                else
+                                {
+                                    res.Delete();
+                                }
+                                break;
+                            }
                     }
-                    if (targeted is BronzeIngot)
-                    {
-                        BronzeIngot res = (BronzeIngot)targeted;
-                        from.SendMessage("Bronze selected");
-                        i_bow.MaxDamage += 10;
-                        i_bow.Hue = res.Hue;
-                        i_bow.Resource2 = CraftResource.Bronze;
-                        if (res.Amount > 1)
-                        {
-                            res.Amount -= 1;
-                        }
-                        else
-                        {
-                            res.Delete();
-                        }
-                    }
+                    from.SendMessage(resourceName + " added to your bow");
                 }
             }
-
         } 
     }
 }
