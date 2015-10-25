@@ -77,11 +77,12 @@ namespace Server.Items
 
                 protected override void OnTarget(Mobile from, object targeted)
                 {
+                    //select backpack
                     Container ourPack = from.Backpack;
-                    bool worked = false;
+                    Item selectedItem = (Item)targeted;
+                    CraftResource thisResource = CraftResources.GetFromType(targeted.GetType()); // select resource
 
-                    CraftResource thisResource = CraftResources.GetFromType(targeted.GetType());
-
+                    //look for the resource chosen
                     switch (thisResource)
                     {
                         case CraftResource.Iron:
@@ -130,7 +131,8 @@ namespace Server.Items
                                 break;
                             }
                         default:
-                            Console.WriteLine("You haven't selected a ingot");
+                            // if no resource is found, they haven't choosen a ingot
+                            from.SendMessage("You haven't selected a ingot");
                             break;
                     }
                 }
@@ -161,7 +163,7 @@ namespace Server.Items
 
                 if (works == true)
                 {
-                    from.SendMessage("You have enchanted your bow with" + CraftResources.GetName(thisResource));
+                    from.SendMessage("You have enchanted your bow with " + CraftResources.GetName(thisResource));
                 }
                 else
                 {
