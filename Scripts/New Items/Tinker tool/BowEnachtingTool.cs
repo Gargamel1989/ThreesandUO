@@ -79,15 +79,23 @@ namespace Server.Items
                 {
                     String resourceName = "";
                     Container ourPack = from.Backpack;
+                    bool worked = false;
 
                     CraftResource thisResource = CraftResources.GetFromType(targeted.GetType());
-
-                    BaseIngot bier;
 
                     switch (thisResource)
                     {
                         case CraftResource.Iron:
                             {
+                                if (from.CheckSkill(SkillName.Blacksmith, 90, 100))
+                                {
+
+                                }
+                                else
+                                {
+                                    from.SendMessage("Not enough skill in blacksmithing");
+                                }
+                                from.CheckSkill(SkillName.Blacksmith, 50);
                                 IronIngot res = (IronIngot)targeted;
                                 resourceName = "Iron";
                                 i_bow.MaxDamage += 5;
@@ -105,6 +113,14 @@ namespace Server.Items
                             }
                         case CraftResource.DullCopper:
                             {
+                                if (from.CheckSkill(SkillName.Blacksmith, 90, 100))
+                                {
+
+                                }
+                                else
+                                {
+                                    from.SendMessage("Not enough skill in blacksmithing");
+                                }
                                 DullCopperIngot res = (DullCopperIngot)targeted;
                                 resourceName = "DullCopper";
                                 i_bow.MaxDamage += 5;
@@ -122,7 +138,14 @@ namespace Server.Items
                             }
                         case CraftResource.ShadowIron:
                             {
+                                if (from.CheckSkill(SkillName.Blacksmith, 90, 100))
+                                {
 
+                                }
+                                else
+                                {
+                                    from.SendMessage("Not enough skill in blacksmithing");
+                                }
                                 ShadowIronIngot res = (ShadowIronIngot)targeted;
                                 resourceName = "ShadowIron";
                                 i_bow.MaxDamage += 5;
@@ -140,7 +163,15 @@ namespace Server.Items
                             }
                         case CraftResource.Copper:
                             {
-                                ShadowIronIngot res = (ShadowIronIngot)targeted;
+                                if (from.CheckSkill(SkillName.Blacksmith, 90, 100))
+                                {
+
+                                }
+                                else
+                                {
+                                    from.SendMessage("Not enough skill in blacksmithing");
+                                }
+                                    ShadowIronIngot res = (ShadowIronIngot)targeted;
                                 resourceName = "ShadowIron";
                                 i_bow.MaxDamage += 5;
                                 i_bow.Hue = res.Hue;
@@ -157,23 +188,41 @@ namespace Server.Items
                             }
                         case CraftResource.Bronze:
                             {
-                                BronzeIngot res = (BronzeIngot)targeted;
-                                resourceName = "Bronze";
-                                i_bow.MaxDamage += 5;
-                                i_bow.Hue = res.Hue;
-                                i_bow.Resource2 = CraftResource.Bronze;
-                                if (res.Amount > 1)
+
+                                if (from.CheckSkill(SkillName.Blacksmith, 90,100))
                                 {
-                                    res.Amount -= 1;
+                                    BronzeIngot res = (BronzeIngot)targeted;
+                                    resourceName = "Bronze";
+                                    i_bow.MaxDamage += 5;
+                                    i_bow.Hue = res.Hue;
+                                    i_bow.Resource2 = CraftResource.Bronze;
+                                    if (res.Amount > 1)
+                                    {
+                                        res.Amount -= 1;
+                                    }
+                                    else
+                                    {
+                                        res.Delete();
+                                    }
+                                    
                                 }
                                 else
                                 {
-                                    res.Delete();
+                                    from.SendMessage("Not enough skill in blacksmithing");
                                 }
                                 break;
+
                             }
                         case CraftResource.Gold:
                             {
+                                if (from.CheckSkill(SkillName.Blacksmith, 90, 100))
+                                {
+
+                                }
+                                else
+                                {
+                                    from.SendMessage("Not enough skill in blacksmithing");
+                                }
                                 GoldIngot res = (GoldIngot)targeted;
                                 resourceName = "Gold";
                                 i_bow.MaxDamage += 5;
@@ -191,6 +240,14 @@ namespace Server.Items
                             }
                         case CraftResource.Agapite:
                             {
+                                if (from.CheckSkill(SkillName.Blacksmith, 90, 100))
+                                {
+
+                                }
+                                else
+                                {
+                                    from.SendMessage("Not enough skill in blacksmithing");
+                                }
                                 AgapiteIngot res = (AgapiteIngot)targeted;
                                 resourceName = "Agapite";
                                 i_bow.MaxDamage += 5;
@@ -208,6 +265,14 @@ namespace Server.Items
                             }
                         case CraftResource.Verite:
                             {
+                                if (from.CheckSkill(SkillName.Blacksmith, 90, 100))
+                                {
+
+                                }
+                                else
+                                {
+                                    from.SendMessage("Not enough skill in blacksmithing");
+                                }
                                 VeriteIngot res = (VeriteIngot)targeted;
                                 resourceName = "Verite";
                                 i_bow.MaxDamage += 5;
@@ -225,23 +290,34 @@ namespace Server.Items
                             }
                         case CraftResource.Valorite:
                             {
-                                ValoriteIngot res = (ValoriteIngot)targeted;
-                                resourceName = "Valorite";
-                                i_bow.MaxDamage += 5;
-                                i_bow.Hue = res.Hue;
-                                i_bow.Resource2 = CraftResource.Valorite;
-                                if (res.Amount > 1)
-                                {
-                                    res.Amount -= 1;
-                                }
-                                else
-                                {
-                                    res.Delete();
-                                }
+                                worked = checking(i_bow, thisResource, from, 100, targeted);
                                 break;
                             }
                     }
-                    from.SendMessage(resourceName + " added to your bow");
+                }
+            }
+
+            public bool checking(BaseWeapon weapon, CraftResource resource, Mobile from, int reqSkill, object targeted)
+            {
+                if (from.CheckSkill(SkillName.Blacksmith, reqSkill, 100))
+                {
+                    Item res = (Item)targeted;
+                    weapon.Hue = CraftResources.GetHue(resource);
+                    from.SendMessage("You have enchanted your bow with" + CraftResources.GetName( resource));
+                    if (res.Amount > 1)
+                    {
+                        res.Amount -= 1;
+                    }
+                    else
+                    {
+                        res.Delete();
+                    }
+                    return true;
+                }
+                else
+                {
+                    from.SendMessage("Not enough skill in blacksmithing");
+                    return false;
                 }
             }
         } 
