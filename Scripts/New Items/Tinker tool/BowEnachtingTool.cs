@@ -82,58 +82,66 @@ namespace Server.Items
                     Item selectedItem = (Item)targeted;
                     CraftResource thisResource = CraftResources.GetFromType(targeted.GetType()); // select resource
 
-                    //look for the resource chosen
-                    switch (thisResource)
+                    if (selectedItem is BaseIngot)
                     {
-                        case CraftResource.Iron:
-                            {
-                                checking(i_bow, thisResource, from, 50, 5, targeted);
+                        //look for the resource chosen
+                        switch (thisResource)
+                        {
+                            case CraftResource.Iron:
+                                {
+                                    checking(i_bow, thisResource, from, 50, 5, targeted);
+                                    break;
+                                }
+                            case CraftResource.DullCopper:
+                                {
+                                    checking(i_bow, thisResource, from, 70, 6, targeted);
+                                    break;
+                                }
+                            case CraftResource.ShadowIron:
+                                {
+                                    checking(i_bow, thisResource, from, 80, 7, targeted);
+                                    break;
+                                }
+                            case CraftResource.Copper:
+                                {
+                                    checking(i_bow, thisResource, from, 90, 8, targeted);
+                                    break;
+                                }
+                            case CraftResource.Bronze:
+                                {
+                                    checking(i_bow, thisResource, from, 100, 10, targeted);
+                                    break;
+                                }
+                            case CraftResource.Gold:
+                                {
+                                    checking(i_bow, thisResource, from, 100, 10, targeted);
+                                    break;
+                                }
+                            case CraftResource.Agapite:
+                                {
+                                    checking(i_bow, thisResource, from, 100, 10, targeted);
+                                    break;
+                                }
+                            case CraftResource.Verite:
+                                {
+                                    checking(i_bow, thisResource, from, 100, 10, targeted);
+                                    break;
+                                }
+                            case CraftResource.Valorite:
+                                {
+                                    checking(i_bow, thisResource, from, 100, 10, targeted);
+                                    break;
+                                }
+                            default:
+                                // if no ingot source was found.
+                                from.SendMessage("The selected ingot does not work");
                                 break;
-                            }
-                        case CraftResource.DullCopper:
-                            {
-                                checking(i_bow, thisResource, from, 70, 6, targeted);
-                                break;
-                            }
-                        case CraftResource.ShadowIron:
-                            {
-                                checking(i_bow, thisResource, from, 80, 7, targeted);
-                                break;
-                            }
-                        case CraftResource.Copper:
-                            {
-                                checking(i_bow, thisResource, from, 90, 8, targeted);
-                                break;
-                            }
-                        case CraftResource.Bronze:
-                            {
-                                checking(i_bow, thisResource, from, 100, 10, targeted);
-                                break;
-                            }
-                        case CraftResource.Gold:
-                            {
-                                checking(i_bow, thisResource, from, 100, 10, targeted);
-                                break;
-                            }
-                        case CraftResource.Agapite:
-                            {
-                                checking(i_bow, thisResource, from, 100, 10, targeted);
-                                break;
-                            }
-                        case CraftResource.Verite:
-                            {
-                                checking(i_bow, thisResource, from, 100, 10, targeted);
-                                break;
-                            }
-                        case CraftResource.Valorite:
-                            {
-                                checking(i_bow, thisResource, from, 100, 10, targeted);
-                                break;
-                            }
-                        default:
-                            // if no resource is found, they haven't choosen a ingot
-                            from.SendMessage("You haven't selected a ingot");
-                            break;
+                        }
+                    }
+                    else
+                    {   
+                        // if the selected item is no ingot
+                        from.SendMessage("You haven't selected an ingot");
                     }
                 }
             }
