@@ -50,7 +50,7 @@ namespace Server.Items
 
             protected override void OnTarget(Mobile from, object targ)
             {
-                if (targ is Bow)
+                if (targ is BaseRanged)
                 {
                     BaseWeapon bow = (BaseWeapon)targ;
                     if (!bow.Resource2.HasValue)
