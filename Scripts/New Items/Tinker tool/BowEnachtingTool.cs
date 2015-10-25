@@ -106,10 +106,8 @@ namespace Server.Items
                             }
                         case CraftResource.Bronze:
                             {
-
                                 checking(i_bow, thisResource, from, 100, 10, targeted);
                                 break;
-
                             }
                         case CraftResource.Gold:
                             {
