@@ -86,70 +86,65 @@ namespace Server.Items
                     {
                         case CraftResource.Iron:
                             {
-                                worked = checking(i_bow, thisResource, from, 50, 5, targeted);
+                                checking(i_bow, thisResource, from, 50, 5, targeted);
                                 break;
                             }
                         case CraftResource.DullCopper:
                             {
-                                worked = checking(i_bow, thisResource, from, 70, 6, targeted);
+                                checking(i_bow, thisResource, from, 70, 6, targeted);
                                 break;
                             }
                         case CraftResource.ShadowIron:
                             {
-                                worked = checking(i_bow, thisResource, from, 80, 7, targeted);
+                                checking(i_bow, thisResource, from, 80, 7, targeted);
                                 break;
                             }
                         case CraftResource.Copper:
                             {
-                                worked = checking(i_bow, thisResource, from, 90, 8, targeted);
+                                checking(i_bow, thisResource, from, 90, 8, targeted);
                                 break;
                             }
                         case CraftResource.Bronze:
                             {
 
-                                worked = checking(i_bow, thisResource, from, 100, 10, targeted);
+                                checking(i_bow, thisResource, from, 100, 10, targeted);
                                 break;
 
                             }
                         case CraftResource.Gold:
                             {
-                                worked = checking(i_bow, thisResource, from, 100, 10, targeted);
+                                checking(i_bow, thisResource, from, 100, 10, targeted);
                                 break;
                             }
                         case CraftResource.Agapite:
                             {
-                                worked = checking(i_bow, thisResource, from, 100, 10, targeted);
+                                checking(i_bow, thisResource, from, 100, 10, targeted);
                                 break;
                             }
                         case CraftResource.Verite:
                             {
-                                worked = checking(i_bow, thisResource, from, 100, 10, targeted);
+                                checking(i_bow, thisResource, from, 100, 10, targeted);
                                 break;
                             }
                         case CraftResource.Valorite:
                             {
-                                worked = checking(i_bow, thisResource, from, 100, 10, targeted);
+                                checking(i_bow, thisResource, from, 100, 10, targeted);
                                 break;
                             }
-                    }
-
-                    if ( worked == true)
-                    {
-                        from.SendMessage("You have enchanted your bow with" + CraftResources.GetName(thisResource));
-                    }
-                    else
-                    {
-                        from.SendMessage("Not enough skill in blacksmithing");
+                        default:
+                            Console.WriteLine("You haven't selected a ingot");
+                            break;
                     }
                 }
             }
 
-            public static bool checking(BaseWeapon weapon, CraftResource resource, Mobile from, int reqSkill, int damageBonus, object targeted)
+            public static void checking(BaseWeapon weapon, CraftResource thisResource, Mobile from, int reqSkill, int damageBonus, object targeted)
             {
+                bool works = false;
                 if (from.CheckSkill(SkillName.Blacksmith, reqSkill, 100))
                 {
                     Item res = (Item)targeted;
-                    weapon.Hue = CraftResources.GetHue(resource);
+                    weapon.Hue = CraftResources.GetHue(thisResource);
                     
                     if (res.Amount > 1)
                     {
@@ -159,12 +154,20 @@ namespace Server.Items
                     {
                         res.Delete();
                     }
-                    return true;
+                    works = true;
                 }
                 else
                 {
-                    
-                    return false;
+                    works =  false;
+                }
+
+                if (works == true)
+                {
+                    from.SendMessage("You have enchanted your bow with" + CraftResources.GetName(thisResource));
+                }
+                else
+                {
+                    from.SendMessage("Not enough skill in blacksmithing");
                 }
             }
         } 
