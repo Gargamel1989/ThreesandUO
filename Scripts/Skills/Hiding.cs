@@ -88,7 +88,7 @@ namespace Server.SkillHandlers
 			{
 				m.RevealingAction();
 
-				m.LocalOverheadMessage( MessageType.Regular, 0x22, 501237 ); // You can't seem to hide right now.
+				m.LocalOverheadMessage( MessageType.Regular, 0x22, 501237 , "help text"); // You can't seem to hide right now.
 
 				return TimeSpan.FromSeconds( 1.0 );
 			}
@@ -107,7 +107,7 @@ namespace Server.SkillHandlers
 					m.LocalOverheadMessage( MessageType.Regular, 0x22, 501241 ); // You can't seem to hide here.
 				}
 
-				return TimeSpan.FromSeconds( 10.0 );
+				return TimeSpan.FromSeconds( 1.0 );
 			}
 		}
 	}

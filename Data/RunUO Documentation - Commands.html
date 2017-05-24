@@ -1,0 +1,218 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+      <title>RunUO Documentation - Commands</title>
+      <link rel="stylesheet" type="text/css" href="RunUO%20Documentation%20-%20Commands_bestanden/styles.css">
+   </head>
+   <body>
+      <a name="Top">
+      </a><h4><a name="Top"></a><a href="http://uostuff.uo-projects.net/uostuff/include/templates/runuo/docs/index.html">Back to the index</a></h4>
+      <h2>Commands</h2>
+      <a name="Administrator">
+      <b>Administrator</b> | </a><a href="#GameMaster">Game Master</a> | <a href="#Counselor">Counselor</a> | <a href="#Player">Player</a><br><br>
+      <table cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tbody><tr><td class="tbl-border">
+      <a name="Admin"></a><a name="Ban"></a><a name="ClearFacet"></a><a name="CountObjects"></a><a name="Decorate"></a><a name="DocGen"></a><a name="DoorGen"></a><a name="DumpTimers"></a><a name="FindByName"></a><a name="FindRunes"></a><a name="Firewall"></a><a name="Freeze"></a><a name="FreezeMap"></a><a name="FreezeWorld"></a><a name="Global"></a><a name="MoonGen"></a><a name="Online"></a><a name="PacketProfiles"></a><a name="ProfileWorld"></a><a name="RebuildCategorization"></a><a name="Region"></a><a name="Save"></a><a name="SecretLocGen"></a><a name="SetGuarded"></a><a name="SetProfiles"></a><a name="SetSaves"></a><a name="SHTelGen"></a><a name="SignGen"></a><a name="TelGen"></a><a name="TimerProfiles"></a><a name="ToggleGuarded"></a><a name="TraceInternal"></a><a name="Unfreeze"></a><a name="UnfreezeMap"></a><a name="UnfreezeWorld"></a><a name="UOAMVendors"></a><a name="ValidateName"></a><a name="VendorGen"></a><table cellspacing="1" cellpadding="4" width="100%">
+         <tbody><tr><td colspan="2" class="header" width="100%">Administrator</td></tr>
+         <tr><td class="lentry">Admin</td><td class="rentry"><b>Usage: Admin</b><br>Opens an interface providing server information and administration features including client, account, and firewall management.</td></tr>
+         <tr><td class="lentry">Ban</td><td class="rentry"><b>Usage: Ban</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Bans the account of a targeted player.</td></tr>
+         <tr><td class="lentry">ClearFacet</td><td class="rentry"><b>Usage: ClearFacet</b><br>Deletes all items and mobiles in your facet. Players and their inventory will not be deleted.</td></tr>
+         <tr><td class="lentry">CountObjects</td><td class="rentry"><b>Usage: CountObjects</b><br>Generates a log file detailing all item and mobile types in the world.</td></tr>
+         <tr><td class="lentry">Decorate</td><td class="rentry"><b>Usage: Decorate</b><br>Generates world decoration.</td></tr>
+         <tr><td class="lentry">DocGen</td><td class="rentry"><b>Usage: DocGen</b><br>Generates RunUO documentation.</td></tr>
+         <tr><td class="lentry">DoorGen</td><td class="rentry"><b>Usage: DoorGen</b><br>Generates doors by analyzing the map. Slow.</td></tr>
+         <tr><td class="lentry">DumpTimers</td><td class="rentry"><b>Usage: DumpTimers</b><br>Generates a log file of all currently executing timers. Used for tracing timer leaks.</td></tr>
+         <tr><td class="lentry">FindByName</td><td class="rentry"><b>Usage: FindByName &lt;name&gt;</b><br>Finds an item by name.</td></tr>
+         <tr><td class="lentry">FindRunes</td><td class="rentry"><b>Usage: FindRunes</b><br>Lists runes (or runebooks with runes) to green acres.</td></tr>
+         <tr><td class="lentry">Firewall</td><td class="rentry"><b>Usage: Firewall</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Adds a targeted player to the firewall (list of blocked IP addresses). This command does not ban or kick.</td></tr>
+         <tr><td class="lentry">Freeze</td><td class="rentry"><b>Usage: Freeze</b><br>Makes a targeted area of dynamic items static.</td></tr>
+         <tr><td class="lentry">FreezeMap</td><td class="rentry"><b>Usage: FreezeMap</b><br>Makes every dynamic item in your map static.</td></tr>
+         <tr><td class="lentry">FreezeWorld</td><td class="rentry"><b>Usage: FreezeWorld</b><br>Makes every dynamic item on all maps static.</td></tr>
+         <tr><td class="lentry">Global</td><td class="rentry"><b>Usage: Global &lt;command&gt; [condition]</b><br>Invokes
+ the command on all appropriate objects in the world. Optional condition
+ arguments can further restrict the set of objects.</td></tr>
+         <tr><td class="lentry">MoonGen</td><td class="rentry"><b>Usage: MoonGen</b><br>Generates public moongates. Removes all old moongates.</td></tr>
+         <tr><td class="lentry">Online</td><td class="rentry"><b>Usage: Online &lt;command&gt; [condition]</b><br>Invokes
+ the command on all mobiles that are currently logged in. Optional 
+condition arguments can further restrict the set of objects.</td></tr>
+         <tr><td class="lentry">PacketProfiles</td><td class="rentry"><b>Usage: PacketProfiles</b><br>Generates a log file containing performance information pertaining to networking data packets.</td></tr>
+         <tr><td class="lentry">ProfileWorld</td><td class="rentry"><b>Usage: ProfileWorld</b><br>Prints the amount of data serialized for every object type in your world file.</td></tr>
+         <tr><td class="lentry">RebuildCategorization</td><td class="rentry"><b>Usage: RebuildCategorization</b><br>Rebuilds the categorization data file used by the Add command.</td></tr>
+         <tr><td class="lentry">Region</td><td class="rentry"><b>Usage: Region &lt;command&gt; [condition]</b><br>Invokes
+ the command on all appropriate mobiles in your current region. Optional
+ condition arguments can further restrict the set of objects.</td></tr>
+         <tr><td class="lentry">Save</td><td class="rentry"><b>Usage: Save</b><br>Saves the world.</td></tr>
+         <tr><td class="lentry">SecretLocGen</td><td class="rentry"><b>Usage: SecretLocGen</b><br>Generates mark containers to Malas secret locations.</td></tr>
+         <tr><td class="lentry">SetGuarded</td><td class="rentry"><b>Usage: SetGuarded &lt;true|false&gt;</b><br>Enables or disables guards for the current region.</td></tr>
+         <tr><td class="lentry">SetProfiles</td><td class="rentry"><b>Usage: SetProfiles [true | false]</b><br>Enables, disables, or toggles the state of core packet and timer profiling.</td></tr>
+         <tr><td class="lentry">SetSaves</td><td class="rentry"><b>Usage: SetSaves &lt;true | false&gt;</b><br>Enables or disables automatic shard saving.</td></tr>
+         <tr><td class="lentry">SHTelGen</td><td class="rentry"><b>Usage: SHTelGen</b><br>Generates solen hives teleporters.</td></tr>
+         <tr><td class="lentry">SignGen</td><td class="rentry"><b>Usage: SignGen</b><br>Generates world/shop signs on all facets.</td></tr>
+         <tr><td class="lentry">TelGen</td><td class="rentry"><b>Usage: TelGen</b><br>Generates world/dungeon teleporters for all facets.</td></tr>
+         <tr><td class="lentry">TimerProfiles</td><td class="rentry"><b>Usage: TimerProfiles</b><br>Generates a log file containing performance information pertaining to timers.</td></tr>
+         <tr><td class="lentry">ToggleGuarded</td><td class="rentry"><b>Usage: ToggleGuarded</b><br>Toggles the state of guards for the current region.</td></tr>
+         <tr><td class="lentry">TraceInternal</td><td class="rentry"><b>Usage: TraceInternal</b><br>Generates a log file describing all items in the 'internal' map.</td></tr>
+         <tr><td class="lentry">Unfreeze</td><td class="rentry"><b>Usage: Unfreeze</b><br>Makes a targeted area of static items dynamic.</td></tr>
+         <tr><td class="lentry">UnfreezeMap</td><td class="rentry"><b>Usage: UnfreezeMap</b><br>Makes every static item in your map dynamic.</td></tr>
+         <tr><td class="lentry">UnfreezeWorld</td><td class="rentry"><b>Usage: UnfreezeWorld</b><br>Makes every static item on all maps dynamic.</td></tr>
+         <tr><td class="lentry">UOAMVendors</td><td class="rentry"><b>Usage: UOAMVendors</b><br>Generates vendor spawners from Data/Common.MAP (taken from UOAutoMap)</td></tr>
+         <tr><td class="lentry">ValidateName</td><td class="rentry"><b>Usage: ValidateName</b><br>Checks the result of NameValidation on the specified name.</td></tr>
+         <tr><td class="lentry">VendorGen</td><td class="rentry"><b>Usage: VendorGen</b><br>Generates vendors based on display cases and floor plans. Analyzes the map files, slow.</td></tr>
+      </tbody></table></td></tr></tbody></table><br>
+      <a name="GameMaster">
+      </a><a href="#Top">Administrator</a> | <b>Game Master</b> | <a href="#Counselor">Counselor</a> | <a href="#Player">Player</a><br><br>
+      <table cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tbody><tr><td class="tbl-border">
+      <a name="Add"></a><a name="AddDoor"></a><a name="AddMenu"></a><a name="AddToPack"></a><a name="AllSpells"></a><a name="Animate"></a><a name="Area"></a><a name="Bank"></a><a name="BCast"></a><a name="BringToPack"></a><a name="ChainLink"></a><a name="CheckGuarded"></a><a name="Condition"></a><a name="Contained"></a><a name="Count"></a><a name="Delete"></a><a name="DesignInsert"></a><a name="Dismount"></a><a name="Dupe"></a><a name="DupeInBag"></a><a name="FactionBan"></a><a name="FactionKick"></a><a name="FactionUnban"></a><a name="Flip"></a><a name="GetFollowers"></a><a name="GetSkill"></a><a name="GlobalLight"></a><a name="HWInfo"></a><a name="Immortal"></a><a name="Interface"></a><a name="Invul"></a><a name="Kick"></a><a name="Kill"></a><a name="Link"></a><a name="Mortal"></a><a name="Move"></a><a name="NoInvul"></a><a name="OpenBrowser"></a><a name="PrivSound"></a><a name="RefreshHouse"></a><a name="Restock"></a><a name="Resurrect"></a><a name="SetAllSkills"></a><a name="SetSkill"></a><a name="ShaveBeard"></a><a name="ShaveHair"></a><a name="Sound"></a><a name="SpeechLog"></a><a name="Squelch"></a><a name="Tile"></a><a name="TileRXYZ"></a><a name="TileXYZ"></a><a name="TileZ"></a><a name="TownCriers"></a><a name="Unsquelch"></a><a name="ViewEquip"></a><a name="ViewHouses"></a><a name="Wipe"></a><a name="WipeItems"></a><a name="WipeMultis"></a><a name="WipeNPCs"></a><table cellspacing="1" cellpadding="4" width="100%">
+         <tbody><tr><td colspan="2" class="header" width="100%">Game Master</td></tr>
+         <tr><td class="lentry">Add</td><td class="rentry"><b>Usage: Add [&lt;name&gt; [params] [set {&lt;propertyName&gt; &lt;value&gt; ...}]]</b><br>Modifiers: <i><a href="#Multi">Multi</a></i>, <i><a href="#Self">Self</a></i><br>Adds
+ an item or npc by name to a targeted location. Optional constructor 
+parameters. Optional set property list. If no arguments are specified, 
+this brings up a categorized add menu.</td></tr>
+         <tr><td class="lentry">AddDoor</td><td class="rentry"><b>Usage: AddDoor</b><br>Displays a menu from which you can interactively add doors.</td></tr>
+         <tr><td class="lentry">AddMenu</td><td class="rentry"><b>Usage: AddMenu [searchString]</b><br>Opens
+ an add menu, with an optional initial search string. This menu allows 
+you to search for Items or Mobiles and add them interactively.</td></tr>
+         <tr><td class="lentry">AddToPack</td><td class="rentry"><b>Usage: AddToPack &lt;name&gt; [params] [set {&lt;propertyName&gt; &lt;value&gt; ...}]</b><br>Alias: AddToCont<br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Adds
+ an item by name to the backpack of a targeted player or npc, or a 
+targeted container. Optional constructor parameters. Optional set 
+property list.</td></tr>
+         <tr><td class="lentry">AllSpells</td><td class="rentry"><b>Usage: AllSpells</b><br>Completely fills a targeted spellbook with scrolls.</td></tr>
+         <tr><td class="lentry">Animate</td><td class="rentry"><b>Usage: Animate &lt;action&gt; &lt;frameCount&gt; &lt;repeatCount&gt; &lt;forward&gt; &lt;repeat&gt; &lt;delay&gt;</b><br>Makes your character do a specified animation.</td></tr>
+         <tr><td class="lentry">Area</td><td class="rentry"><b>Usage: Area &lt;command&gt; [condition]</b><br>Alias: Group<br>Invokes
+ the command on all appropriate objects in a targeted area. Optional 
+condition arguments can further restrict the set of objects.</td></tr>
+         <tr><td class="lentry">Bank</td><td class="rentry"><b>Usage: Bank</b><br>Opens the bank box of a given target.</td></tr>
+         <tr><td class="lentry">BCast</td><td class="rentry"><b>Usage: BCast &lt;text&gt;</b><br>Aliases: B, BC<br>Broadcasts a message to everyone online.</td></tr>
+         <tr><td class="lentry">BringToPack</td><td class="rentry"><b>Usage: BringToPack</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i><br>Brings a targeted item to your backpack.</td></tr>
+         <tr><td class="lentry">ChainLink</td><td class="rentry"><b>Usage: ChainLink</b><br>Chain-links two or more targeted doors together.</td></tr>
+         <tr><td class="lentry">CheckGuarded</td><td class="rentry"><b>Usage: CheckGuarded</b><br>Returns a value indicating if the current region is guarded or not.</td></tr>
+         <tr><td class="lentry">Condition</td><td class="rentry"><b>Usage: Condition &lt;condition&gt;</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Checks that the given condition matches a targeted object.</td></tr>
+         <tr><td class="lentry">Contained</td><td class="rentry"><b>Usage: Contained &lt;command&gt; [condition]</b><br>Invokes
+ the command on all child items in a targeted container. Optional 
+condition arguments can further restrict the set of objects.</td></tr>
+         <tr><td class="lentry">Count</td><td class="rentry"><b>Usage: Count</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Area">Area</a></i><br>Counts the number of objects that a command modifier would use. Generally used with condition arguments.</td></tr>
+         <tr><td class="lentry">Delete</td><td class="rentry"><b>Usage: Delete</b><br>Alias: Remove<br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i><br>Deletes a targeted item or mobile. Does not delete players.</td></tr>
+         <tr><td class="lentry">DesignInsert</td><td class="rentry"><b>Usage: DesignInsert</b><br>Inserts multiple targeted items into a customizable houses design.</td></tr>
+         <tr><td class="lentry">Dismount</td><td class="rentry"><b>Usage: Dismount</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Forcefully dismounts a given target.</td></tr>
+         <tr><td class="lentry">Dupe</td><td class="rentry"><b>Usage: Dupe [amount]</b><br>Dupes a targeted item.</td></tr>
+         <tr><td class="lentry">DupeInBag</td><td class="rentry"><b>Usage: DupeInBag &lt;count&gt;</b><br>Dupes an item at it's current location (count) number of times.</td></tr>
+         <tr><td class="lentry">FactionBan</td><td class="rentry"><b>Usage: FactionBan</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Bans
+ the account of a targeted player from joining factions. All players on 
+the account are removed from their current faction, if any.</td></tr>
+         <tr><td class="lentry">FactionKick</td><td class="rentry"><b>Usage: FactionKick</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Kicks the targeted player out of his current faction. This does not prevent them from rejoining.</td></tr>
+         <tr><td class="lentry">FactionUnban</td><td class="rentry"><b>Usage: FactionUnban</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Unbans the account of a targeted player from joining factions.</td></tr>
+         <tr><td class="lentry">Flip</td><td class="rentry"><b>Usage: Flip</b><br>Turns an item.</td></tr>
+         <tr><td class="lentry">GetFollowers</td><td class="rentry"><b>Usage: GetFollowers</b><br>Teleports all pets of a targeted player to your location.</td></tr>
+         <tr><td class="lentry">GetSkill</td><td class="rentry"><b>Usage: GetSkill &lt;name&gt;</b><br>Gets a skill value by name of a targeted mobile.</td></tr>
+         <tr><td class="lentry">GlobalLight</td><td class="rentry"><b>Usage: GlobalLight &lt;value&gt;</b><br>Sets the current global light level.</td></tr>
+         <tr><td class="lentry">HWInfo</td><td class="rentry"><b>Usage: HWInfo</b><br>Displays information about a targeted player's hardware.</td></tr>
+         <tr><td class="lentry">Immortal</td><td class="rentry"><b>Usage: Immortal</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Sets the blessed property to true.</td></tr>
+         <tr><td class="lentry">Interface</td><td class="rentry"><b>Usage: Interface</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Area">Area</a></i><br>Opens an interface to interact with matched objects. Generally used with condition arguments.</td></tr>
+         <tr><td class="lentry">Invul</td><td class="rentry"><b>Usage: Invul</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Sets the blessed property to true.</td></tr>
+         <tr><td class="lentry">Kick</td><td class="rentry"><b>Usage: Kick</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Disconnects a targeted player.</td></tr>
+         <tr><td class="lentry">Kill</td><td class="rentry"><b>Usage: Kill</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Kills a targeted player or npc.</td></tr>
+         <tr><td class="lentry">Link</td><td class="rentry"><b>Usage: Link</b><br>Links two targeted doors together.</td></tr>
+         <tr><td class="lentry">Mortal</td><td class="rentry"><b>Usage: Mortal</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Sets the blessed property to false.</td></tr>
+         <tr><td class="lentry">Move</td><td class="rentry"><b>Usage: Move</b><br>Repositions a targeted item or mobile.</td></tr>
+         <tr><td class="lentry">NoInvul</td><td class="rentry"><b>Usage: NoInvul</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Sets the blessed property to false.</td></tr>
+         <tr><td class="lentry">OpenBrowser</td><td class="rentry"><b>Usage: OpenBrowser &lt;url&gt;</b><br>Alias: OB<br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Opens the web browser of a targeted player to a specified url.</td></tr>
+         <tr><td class="lentry">PrivSound</td><td class="rentry"><b>Usage: PrivSound &lt;index&gt;</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Plays a sound to a given target.</td></tr>
+         <tr><td class="lentry">RefreshHouse</td><td class="rentry"><b>Usage: RefreshHouse</b><br>Modifiers: <i><a href="#Multi">Multi</a></i><br>Refreshes a targeted house sign.</td></tr>
+         <tr><td class="lentry">Restock</td><td class="rentry"><b>Usage: Restock</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i><br>Manually
+ restocks a targeted vendor, refreshing the quantity of every item the 
+vendor sells to the maximum. This also invokes the maximum quantity 
+adjustment algorithms.</td></tr>
+         <tr><td class="lentry">Resurrect</td><td class="rentry"><b>Usage: Resurrect</b><br>Alias: Res<br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Resurrects a targeted ghost.</td></tr>
+         <tr><td class="lentry">SetAllSkills</td><td class="rentry"><b>Usage: SetAllSkills &lt;name&gt; &lt;value&gt;</b><br>Sets all skill values of a targeted mobile.</td></tr>
+         <tr><td class="lentry">SetSkill</td><td class="rentry"><b>Usage: SetSkill &lt;name&gt; &lt;value&gt;</b><br>Sets a skill value by name of a targeted mobile.</td></tr>
+         <tr><td class="lentry">ShaveBeard</td><td class="rentry"><b>Usage: ShaveBeard</b><br>Removes the beard of a targeted mobile.</td></tr>
+         <tr><td class="lentry">ShaveHair</td><td class="rentry"><b>Usage: ShaveHair</b><br>Removes the hair of a targeted mobile.</td></tr>
+         <tr><td class="lentry">Sound</td><td class="rentry"><b>Usage: Sound &lt;index&gt; [toAll=true]</b><br>Plays a sound to players within 12 tiles of you. The (toAll) argument specifies to everyone, or just those who can see you.</td></tr>
+         <tr><td class="lentry">SpeechLog</td><td class="rentry"><b>Usage: SpeechLog</b><br>Opens the speech log of a given target.</td></tr>
+         <tr><td class="lentry">Squelch</td><td class="rentry"><b>Usage: Squelch</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Sets the squelched property to true.</td></tr>
+         <tr><td class="lentry">Tile</td><td class="rentry"><b>Usage: Tile &lt;name&gt; [params] [set {&lt;propertyName&gt; &lt;value&gt; ...}]</b><br>Tiles an item or npc by name into a targeted bounding box. Optional constructor parameters. Optional set property list.</td></tr>
+         <tr><td class="lentry">TileRXYZ</td><td class="rentry"><b>Usage:
+ TileRXYZ &lt;x&gt; &lt;y&gt; &lt;w&gt; &lt;h&gt; &lt;z&gt; &lt;name&gt;
+ [params] [set {&lt;propertyName&gt; &lt;value&gt; ...}]</b><br>Tiles an
+ item or npc by name into a given bounding box, (x, y) parameters are 
+relative to your characters position. Optional constructor parameters. 
+Optional set property list.</td></tr>
+         <tr><td class="lentry">TileXYZ</td><td class="rentry"><b>Usage:
+ TileXYZ &lt;x&gt; &lt;y&gt; &lt;w&gt; &lt;h&gt; &lt;z&gt; &lt;name&gt; 
+[params] [set {&lt;propertyName&gt; &lt;value&gt; ...}]</b><br>Tiles an item or npc by name into a given bounding box. Optional constructor parameters. Optional set property list.</td></tr>
+         <tr><td class="lentry">TileZ</td><td class="rentry"><b>Usage: TileZ &lt;z&gt; &lt;name&gt; [params] [set {&lt;propertyName&gt; &lt;value&gt; ...}]</b><br>Tiles
+ an item or npc by name into a targeted bounding box at a fixed Z 
+location. Optional constructor parameters. Optional set property list.</td></tr>
+         <tr><td class="lentry">TownCriers</td><td class="rentry"><b>Usage: TownCriers</b><br>Manages the global town crier list.</td></tr>
+         <tr><td class="lentry">Unsquelch</td><td class="rentry"><b>Usage: Unsquelch</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Sets the squelched property to false.</td></tr>
+         <tr><td class="lentry">ViewEquip</td><td class="rentry"><b>Usage: ViewEquip</b><br>Lists equipment of a targeted mobile. From the list you can move, delete, or open props.</td></tr>
+         <tr><td class="lentry">ViewHouses</td><td class="rentry"><b>Usage: ViewHouses</b><br>Displays
+ a menu listing all houses of a targeted player. The menu also contains 
+specific house details, and options to: go to house, open house menu, 
+and demolish house.</td></tr>
+         <tr><td class="lentry">Wipe</td><td class="rentry"><b>Usage: Wipe</b><br>Wipes all items and npcs in a targeted bounding box.</td></tr>
+         <tr><td class="lentry">WipeItems</td><td class="rentry"><b>Usage: WipeItems</b><br>Wipes all items in a targeted bounding box.</td></tr>
+         <tr><td class="lentry">WipeMultis</td><td class="rentry"><b>Usage: WipeMultis</b><br>Wipes all multis in a targeted bounding box.</td></tr>
+         <tr><td class="lentry">WipeNPCs</td><td class="rentry"><b>Usage: WipeNPCs</b><br>Wipes all npcs in a targeted bounding box.</td></tr>
+      </tbody></table></td></tr></tbody></table><br>
+      <a name="Counselor">
+      </a><a href="#Top">Administrator</a> | <a href="#GameMaster">Game Master</a> | <b>Counselor</b> | <a href="#Player">Player</a><br><br>
+      <table cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tbody><tr><td class="tbl-border">
+      <a name="AutoPageNotify"></a><a name="Batch"></a><a name="Cast"></a><a name="Client"></a><a name="DropHolding"></a><a name="Get"></a><a name="GetType"></a><a name="Go"></a><a name="GuildProps"></a><a name="Hide"></a><a name="Increase"></a><a name="Light"></a><a name="Multi"></a><a name="Pages"></a><a name="Props"></a><a name="Self"></a><a name="Set"></a><a name="Single"></a><a name="Skills"></a><a name="SMsg"></a><a name="Stats"></a><a name="Stuck"></a><a name="Teleport"></a><a name="Tell"></a><a name="Unhide"></a><a name="Vis"></a><a name="VisClear"></a><a name="VisList"></a><a name="Where"></a><a name="WhoList"></a><table cellspacing="1" cellpadding="4" width="100%">
+         <tbody><tr><td colspan="2" class="header" width="100%">Counselor</td></tr>
+         <tr><td class="lentry">AutoPageNotify</td><td class="rentry"><b>Usage: AutoPageNotify</b><br>Alias: APN<br>Toggles your auto-page-notify status.</td></tr>
+         <tr><td class="lentry">Batch</td><td class="rentry"><b>Usage: Batch</b><br>Allows multiple commands to be run at the same time.</td></tr>
+         <tr><td class="lentry">Cast</td><td class="rentry"><b>Usage: Cast &lt;name&gt;</b><br>Casts a spell by name.</td></tr>
+         <tr><td class="lentry">Client</td><td class="rentry"><b>Usage: Client</b><br>Opens the client gump menu for a given player.</td></tr>
+         <tr><td class="lentry">DropHolding</td><td class="rentry"><b>Usage: DropHolding</b><br>Drops
+ the item, if any, that a targeted player is holding. The item is placed
+ into their backpack, or if that's full, at their feet.</td></tr>
+         <tr><td class="lentry">Get</td><td class="rentry"><b>Usage: Get &lt;propertyName&gt;</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Gets one or more property values by name of a targeted object.</td></tr>
+         <tr><td class="lentry">GetType</td><td class="rentry"><b>Usage: GetType</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Gets the type name of a targeted object.</td></tr>
+         <tr><td class="lentry">Go</td><td class="rentry"><b>Usage: Go [name | serial | (x y [z]) | (deg min (N | S) deg min (E | W))]</b><br>With
+ no arguments, this command brings up the go menu. With one argument, 
+(name), you are moved to that regions "go location." Or, if a numerical 
+value is specified for one argument, (serial), you are moved to that 
+object. Two or three arguments, (x y [z]), will move your character to 
+that location. When six arguments are specified, (deg min (N | S) deg 
+min (E | W)), your character will go to an approximate of those sextant 
+coordinates.</td></tr>
+         <tr><td class="lentry">GuildProps</td><td class="rentry"><b>Usage: GuildProps</b><br>Opens a menu where you can view and edit guild properties of a targeted guild stone.</td></tr>
+         <tr><td class="lentry">Hide</td><td class="rentry"><b>Usage: Hide</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Makes a targeted mobile disappear in a puff of smoke.</td></tr>
+         <tr><td class="lentry">Increase</td><td class="rentry"><b>Usage: Increase {&lt;propertyName&gt; &lt;offset&gt; ...}</b><br>Alias: Inc<br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Increases the value of a specified property by the specified offset.</td></tr>
+         <tr><td class="lentry">Light</td><td class="rentry"><b>Usage: Light &lt;level&gt;</b><br>Set your local lightlevel.</td></tr>
+         <tr><td class="lentry">Multi</td><td class="rentry"><b>Usage: Multi &lt;command&gt;</b><br>Alias: m<br>Invokes the command on multiple targeted objects.</td></tr>
+         <tr><td class="lentry">Pages</td><td class="rentry"><b>Usage: Pages</b><br>Opens the page queue menu.</td></tr>
+         <tr><td class="lentry">Props</td><td class="rentry"><b>Usage: Props [serial]</b><br>Opens a menu where you can view and edit all properties of a targeted (or specified) object.</td></tr>
+         <tr><td class="lentry">Self</td><td class="rentry"><b>Usage: Self &lt;command&gt;</b><br>Invokes the command on the commanding player.</td></tr>
+         <tr><td class="lentry">Set</td><td class="rentry"><b>Usage: Set &lt;propertyName&gt; &lt;value&gt; [...]</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Contained">Contained</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Sets one or more property values by name of a targeted object.</td></tr>
+         <tr><td class="lentry">Single</td><td class="rentry"><b>Usage: Single &lt;command&gt;</b><br>Invokes the command on a single targeted object. This is the same as just invoking the command directly.</td></tr>
+         <tr><td class="lentry">Skills</td><td class="rentry"><b>Usage: Skills</b><br>Opens a menu where you can view or edit skills of a targeted mobile.</td></tr>
+         <tr><td class="lentry">SMsg</td><td class="rentry"><b>Usage: SMsg &lt;text&gt;</b><br>Aliases: S, SM<br>Broadcasts a message to all online staff.</td></tr>
+         <tr><td class="lentry">Stats</td><td class="rentry"><b>Usage: Stats</b><br>View some stats about the server.</td></tr>
+         <tr><td class="lentry">Stuck</td><td class="rentry"><b>Usage: Stuck</b><br>Opens a menu of towns, used for teleporting stuck mobiles.</td></tr>
+         <tr><td class="lentry">Teleport</td><td class="rentry"><b>Usage: Teleport</b><br>Alias: Tele<br>Modifiers: <i><a href="#Multi">Multi</a></i><br>Teleports your character to a targeted location.</td></tr>
+         <tr><td class="lentry">Tell</td><td class="rentry"><b>Usage: Tell "text"</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Sends a system message to a targeted player.</td></tr>
+         <tr><td class="lentry">Unhide</td><td class="rentry"><b>Usage: Unhide</b><br>Modifiers: <i><a href="#Global">Global</a></i>, <i><a href="#Online">Online</a></i>, <i><a href="#Region">Region</a></i>, <i><a href="#Multi">Multi</a></i>, <i><a href="#Area">Area</a></i>, <i><a href="#Self">Self</a></i><br>Makes a targeted mobile appear in a puff of smoke.</td></tr>
+         <tr><td class="lentry">Vis</td><td class="rentry"><b>Usage: Vis</b><br>Adds
+ or removes a targeted player from your visibility list.  Anyone on your
+ visibility list will be able to see you at all times, even when you're 
+hidden.</td></tr>
+         <tr><td class="lentry">VisClear</td><td class="rentry"><b>Usage: VisClear</b><br>Removes everyone from your visibility list.</td></tr>
+         <tr><td class="lentry">VisList</td><td class="rentry"><b>Usage: VisList</b><br>Shows the names of everyone in your visibility list.</td></tr>
+         <tr><td class="lentry">Where</td><td class="rentry"><b>Usage: Where</b><br>Tells the commanding player his coordinates, region, and facet.</td></tr>
+         <tr><td class="lentry">WhoList</td><td class="rentry"><b>Usage: WhoList</b><br>Alias: Who<br>Lists all connected clients.</td></tr>
+      </tbody></table></td></tr></tbody></table><br>
+      <a name="Player">
+      </a><a href="#Top">Administrator</a> | <a href="#GameMaster">Game Master</a> | <a href="#Counselor">Counselor</a> | <b>Player</b><br><br>
+      <table cellspacing="0" cellpadding="0" border="0" width="100%">
+      <tbody><tr><td class="tbl-border">
+      <a name="Echo"></a><a name="Help"></a><table cellspacing="1" cellpadding="4" width="100%">
+         <tbody><tr><td colspan="2" class="header" width="100%">Player</td></tr>
+         <tr><td class="lentry">Echo</td><td class="rentry"><b>Usage: Echo &lt;text&gt;</b><br>Relays (text) as a system message.</td></tr>
+         <tr><td class="lentry">Help</td><td class="rentry"><b>Usage: Help</b><br>Lists all available commands.</td></tr>
+      </tbody></table></td></tr></tbody></table>
+   
+
+</body></html>
