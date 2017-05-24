@@ -66,6 +66,7 @@ namespace Server.SkillHandlers
 			bool badCombat = ( !m_CombatOverride && m.Combatant != null && m.InRange( m.Combatant.Location, range ) && m.Combatant.InLOS( m ) );
 			bool ok = ( !badCombat /*&& m.CheckSkill( SkillName.Hiding, 0.0 - bonus, 100.0 - bonus )*/ );
 
+            /* old hiding system
 			if ( ok )
 			{
 				if ( !m_CombatOverride )
@@ -83,12 +84,28 @@ namespace Server.SkillHandlers
 
 				ok = ( !badCombat && m.CheckSkill( SkillName.Hiding, 0.0 - bonus, 100.0 - bonus ) );
 			}
+            */
+
+            //check if mobile is in warmode
+            if ( ok )
+            {
+                if ( !m_CombatOverride )
+                {
+                    if (m.Warmode == true)
+                    {
+                        badCombat = true;
+                        ok = false;
+                    }
+                }
+
+                ok = (!badCombat && m.CheckSkill(SkillName.Hiding, 0.0 - bonus, 100.0 - bonus));
+            }
 
 			if ( badCombat )
 			{
 				m.RevealingAction();
 
-				m.LocalOverheadMessage( MessageType.Regular, 0x22, 501237 , "help text"); // You can't seem to hide right now.
+				m.LocalOverheadMessage( MessageType.Regular, 0x22, 501237); // You can't seem to hide right now.
 
 				return TimeSpan.FromSeconds( 1.0 );
 			}
