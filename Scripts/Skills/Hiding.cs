@@ -13,8 +13,9 @@ namespace Server.SkillHandlers
         private static bool m_CombatOverride;
 
         private static Timer timer;
+        public bool isHiding { get; set; }
 
-		public static bool CombatOverride
+        public static bool CombatOverride
 		{
 			get{ return m_CombatOverride; }
 			set{ m_CombatOverride = value; }
@@ -22,7 +23,7 @@ namespace Server.SkillHandlers
 
         public long m_StartHiding { get; set; }
 
-        public bool isHiding { get; set; }
+       
 
         public static void Initialize()
 		{
@@ -208,6 +209,16 @@ namespace Server.SkillHandlers
             protected override void OnTick()
             {
                 m_count++;
+                if (!(m.FindMostRecentDamageEntry(true) == null))
+                {
+                    var test = m.FindMostRecentDamageEntry(true);
+
+                    DateTime damageTimer = test.LastDamage;
+                    TimeSpan damgeTime = DateTime.UtcNow - damageTimer;
+
+                    Console.WriteLine("now: {0}", damgeTime.TotalMilliseconds);
+                }
+                
 
                 if ( m_count <= 10)
                 {
@@ -229,10 +240,18 @@ namespace Server.SkillHandlers
             }
         }
 
-        public void disturb( DisturbType type, Mobile m)
+        public void Disturb( DisturbType type, Mobile m)
         {
-            if (Core.AOS && m.Player && type == DisturbType.Hurt) ;
+            if (Core.AOS && m.Player && type == DisturbType.Hurt)
+            {
+                timer.Stop();
+            }
                 
+        }
+
+        public virtual void OnHidingHurt(Mobile m)
+        {
+            Disturb(DisturbType.Hurt, m);
         }
     }
 
