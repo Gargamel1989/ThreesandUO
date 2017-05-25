@@ -4,11 +4,15 @@ using Server.Items;
 using Server.Network;
 using Server.Multis;
 
+using Scripts.Skills.Utility.Hiding;
+
 namespace Server.SkillHandlers
 {
 	public class Hiding
 	{
         private static bool m_CombatOverride;
+
+        private static Timer timer;
 
 		public static bool CombatOverride
 		{
@@ -182,16 +186,16 @@ namespace Server.SkillHandlers
             
         }
 
-        
-
         public static TimeSpan OnUse( Mobile m )
 		{
-            new hiddenStatus(m, 0).Start();
+            timer = new hiddenStatus(m, 0);
+
+            timer.Start();
 
             return TimeSpan.FromSeconds(1.0);
 		}
 
-        private class hiddenStatus : Timer
+        public class hiddenStatus : Timer
         {
             int m_count;
             Mobile m;
@@ -223,6 +227,12 @@ namespace Server.SkillHandlers
                 }
                 
             }
+        }
+
+        public void disturb( DisturbType type, Mobile m)
+        {
+            if (Core.AOS && m.Player && type == DisturbType.Hurt) ;
+                
         }
     }
 

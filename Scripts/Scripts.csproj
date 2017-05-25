@@ -3097,6 +3097,7 @@
     <Compile Include="Skills\Stealth.cs" />
     <Compile Include="Skills\TasteID.cs" />
     <Compile Include="Skills\Tracking.cs" />
+    <Compile Include="Skills\Utility\Hiding\DisturbType.cs" />
     <Compile Include="SpecialSystems\Engines\GiftGiving.cs" />
     <Compile Include="SpecialSystems\Engines\ItemFixes.cs" />
     <Compile Include="SpecialSystems\Engines\PreventInaccess.cs" />
