@@ -8,7 +8,7 @@ namespace Server.SkillHandlers
 {
 	public class Hiding
 	{
-		private static bool m_CombatOverride;
+        private static bool m_CombatOverride;
 
 		public static bool CombatOverride
 		{
@@ -16,116 +16,215 @@ namespace Server.SkillHandlers
 			set{ m_CombatOverride = value; }
 		}
 
-		public static void Initialize()
+        public long m_StartHiding { get; set; }
+
+        public bool isHiding { get; set; }
+
+        public static void Initialize()
 		{
 			SkillInfo.Table[21].Callback = new SkillUseCallback( OnUse );
 		}
 
-		public static TimeSpan OnUse( Mobile m )
-		{
-			if ( m.Spell != null )
-			{
-				m.SendLocalizedMessage( 501238 ); // You are busy doing something else and cannot hide.
-				return TimeSpan.FromSeconds( 1.0 );
-			}
+        public void test()
+        {
 
-			if ( Core.ML && m.Target != null )
-			{
-				Targeting.Target.Cancel( m );
-			}
+        }
+        private class HideTimer : Timer
+        {
+            private Mobile m;
+            TimeSpan returnTimer;
 
-			double bonus = 0.0;
+            private int counter = 0;
 
-			BaseHouse house = BaseHouse.FindHouseAt( m );
-
-			if ( house != null && house.IsFriend( m ) )
-			{
-				bonus = 100.0;
-			}
-			else if ( !Core.AOS )
-			{
-				if ( house == null )
-					house = BaseHouse.FindHouseAt( new Point3D( m.X - 1, m.Y, 127 ), m.Map, 16 );
-
-				if ( house == null )
-					house = BaseHouse.FindHouseAt( new Point3D( m.X + 1, m.Y, 127 ), m.Map, 16 );
-
-				if ( house == null )
-					house = BaseHouse.FindHouseAt( new Point3D( m.X, m.Y - 1, 127 ), m.Map, 16 );
-
-				if ( house == null )
-					house = BaseHouse.FindHouseAt( new Point3D( m.X, m.Y + 1, 127 ), m.Map, 16 );
-
-				if ( house != null )
-					bonus = 50.0;
-			}
-
-			//int range = 18 - (int)(m.Skills[SkillName.Hiding].Value / 10);
-			int range = Math.Min( (int)((100 - m.Skills[SkillName.Hiding].Value)/2) + 8, 18 );	//Cap of 18 not OSI-exact, intentional difference
-
-			bool badCombat = ( !m_CombatOverride && m.Combatant != null && m.InRange( m.Combatant.Location, range ) && m.Combatant.InLOS( m ) );
-			bool ok = ( !badCombat /*&& m.CheckSkill( SkillName.Hiding, 0.0 - bonus, 100.0 - bonus )*/ );
-
-            /* old hiding system
-			if ( ok )
-			{
-				if ( !m_CombatOverride )
-				{
-					foreach ( Mobile check in m.GetMobilesInRange( range ) )
-					{
-						if ( check.InLOS( m ) && check.Combatant == m )
-						{
-							badCombat = true;
-							ok = false;
-							break;
-						}
-					}
-				}
-
-				ok = ( !badCombat && m.CheckSkill( SkillName.Hiding, 0.0 - bonus, 100.0 - bonus ) );
-			}
-            */
-
-            //check if mobile is in warmode
-            if ( ok )
+            public HideTimer(Mobile m, TimeSpan delay) : base(delay, delay, 3)
             {
-                if ( !m_CombatOverride )
+                this.m = m;
+                Priority = TimerPriority.TwoFiftyMS;
+            }
+            
+
+            protected override void OnTick()
+            {
+                counter++;
+                m.Emote("Hiding iets: counter is: {0}", Convert.ToString(counter));
+                if (m == null || m.Deleted)
                 {
-                    if (m.Warmode == true)
-                    {
-                        badCombat = true;
-                        ok = false;
-                    }
+                    this.Stop();
+                    return;
                 }
 
-                ok = (!badCombat && m.CheckSkill(SkillName.Hiding, 0.0 - bonus, 100.0 - bonus));
+                if (m.Spell != null)
+                {
+                    m.SendLocalizedMessage(501238); // You are busy doing something else and cannot hide.
+                    this.Stop();
+                    return;
+                }
+
+                if (Core.ML && m.Target != null)
+                {
+                    Targeting.Target.Cancel(m);
+                }
+
+                double bonus = 0.0;
+
+                BaseHouse house = BaseHouse.FindHouseAt(m);
+
+                if (house != null && house.IsFriend(m))
+                {
+                    bonus = 100.0;
+                }
+                else if (!Core.AOS)
+                {
+                    if (house == null)
+                        house = BaseHouse.FindHouseAt(new Point3D(m.X - 1, m.Y, 127), m.Map, 16);
+
+                    if (house == null)
+                        house = BaseHouse.FindHouseAt(new Point3D(m.X + 1, m.Y, 127), m.Map, 16);
+
+                    if (house == null)
+                        house = BaseHouse.FindHouseAt(new Point3D(m.X, m.Y - 1, 127), m.Map, 16);
+
+                    if (house == null)
+                        house = BaseHouse.FindHouseAt(new Point3D(m.X, m.Y + 1, 127), m.Map, 16);
+
+                    if (house != null)
+                        bonus = 50.0;
+                }
+
+                //int range = 18 - (int)(m.Skills[SkillName.Hiding].Value / 10);
+                int range = Math.Min((int)((100 - m.Skills[SkillName.Hiding].Value) / 2) + 8, 18);  //Cap of 18 not OSI-exact, intentional difference
+
+                bool badCombat = (!m_CombatOverride && m.Combatant != null && m.InRange(m.Combatant.Location, range) && m.Combatant.InLOS(m));
+                bool ok = (!badCombat /*&& m.CheckSkill( SkillName.Hiding, 0.0 - bonus, 100.0 - bonus )*/ );
+
+                /* old hiding system
+                if ( ok )
+                {
+                    if ( !m_CombatOverride )
+                    {
+                        foreach ( Mobile check in m.GetMobilesInRange( range ) )
+                        {
+                            if ( check.InLOS( m ) && check.Combatant == m )
+                            {
+                                badCombat = true;
+                                ok = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    ok = ( !badCombat && m.CheckSkill( SkillName.Hiding, 0.0 - bonus, 100.0 - bonus ) );
+                }
+                */
+
+                //check if mobile is in warmode
+                if (ok)
+                {
+                    if (!m_CombatOverride)
+                    {
+                        if (m.Warmode == true)
+                        {
+                            badCombat = true;
+                            ok = false;
+                        }
+                    }
+
+                    ok = (!badCombat && m.CheckSkill(SkillName.Hiding, 0.0 - bonus, 100.0 - bonus));
+                }
+
+                if (badCombat)
+                {
+                    m.RevealingAction();
+
+                    m.LocalOverheadMessage(MessageType.Regular, 0x22, 501237); // You can't seem to hide right now.
+
+                    Stop();
+                    return;
+                }
+                else
+                {
+                    if (ok)
+                    {
+                        /*
+                        m.Hidden = true;
+                        m.Warmode = false;
+                        m.LocalOverheadMessage(MessageType.Regular, 0x1F4, 501240); // You have hidden yourself well.
+                        */
+                    }
+                    else
+                    {
+                        m.RevealingAction();
+
+                        m.LocalOverheadMessage(MessageType.Regular, 0x22, 501241); // You can't seem to hide here.
+                    }
+
+                    Stop();
+                    return;
+                }
             }
 
-			if ( badCombat )
-			{
-				m.RevealingAction();
+            public void Tick()
+            {
+                OnTick();
+            }
+        }
 
-				m.LocalOverheadMessage( MessageType.Regular, 0x22, 501237); // You can't seem to hide right now.
+        private bool hiding(Mobile m)
+        {
+            m_StartHiding = Core.TickCount;
 
-				return TimeSpan.FromSeconds( 1.0 );
-			}
-			else 
-			{
-				if ( ok )
-				{
-					m.Hidden = true;
-					m.Warmode = false;
-					m.LocalOverheadMessage( MessageType.Regular, 0x1F4, 501240 ); // You have hidden yourself well.
-				}
-				else
-				{
-					m.RevealingAction();
+            if (!m.CheckAlive() || m.Deleted || m==null)
+            {
+                return false;
+            }
 
-					m.LocalOverheadMessage( MessageType.Regular, 0x22, 501241 ); // You can't seem to hide here.
-				}
+            return true;
+            
+        }
 
-				return TimeSpan.FromSeconds( 1.0 );
-			}
+        
+
+        public static TimeSpan OnUse( Mobile m )
+		{
+            new hiddenStatus(m, 0).Start();
+
+            return TimeSpan.FromSeconds(1.0);
 		}
-	}
+
+        private class hiddenStatus : Timer
+        {
+            int m_count;
+            Mobile m;
+            public hiddenStatus(Mobile m, int count) : base(TimeSpan.FromSeconds(1.0), TimeSpan.FromSeconds(1.0), count)
+            {
+                this.m = m;
+                this.m_count = count;
+            }
+
+            protected override void OnTick()
+            {
+                m_count++;
+
+                if ( m_count <= 10)
+                {
+                    m.Emote("counter: {0}", Convert.ToString(m_count));
+                }
+                else
+                {
+                    this.Stop();
+                    m.Hidden = true;
+                }
+
+                if (m.Warmode == true)
+                {
+                    m.Emote("Warmode: {0}", Convert.ToString(m.Warmode));
+                    this.Stop();
+                    return;
+                }
+                
+            }
+        }
+    }
+
+    
 }
