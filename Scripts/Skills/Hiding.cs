@@ -11,6 +11,7 @@ namespace Server.SkillHandlers
 	public class Hiding
 	{
         private static bool m_CombatOverride;
+        
 
         private static Timer timer;
         public bool isHiding { get; set; }
@@ -172,19 +173,6 @@ namespace Server.SkillHandlers
             {
                 OnTick();
             }
-        }
-
-        private bool hiding(Mobile m)
-        {
-            m_StartHiding = Core.TickCount;
-
-            if (!m.CheckAlive() || m.Deleted || m==null)
-            {
-                return false;
-            }
-
-            return true;
-            
         }
 
         public static TimeSpan OnUse( Mobile m )
