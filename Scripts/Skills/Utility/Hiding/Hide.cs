@@ -12,6 +12,7 @@ namespace Scripts.Skills.Utility.Hiding
     public abstract class Hide : IHiding
     {
         HidingState m_state;
+        HidingTimer m_HidingTimer;
 
         public bool IsHiding
         {
@@ -25,9 +26,11 @@ namespace Scripts.Skills.Utility.Hiding
         {
             if (IsHiding)
             {
+				bool disturb = true;
 
+				if ( disturb )
+					Disturb( DisturbType.Hurt, false );
             }
-            throw new NotImplementedException();
         }
 
         public void OnHiderKilled()
@@ -40,9 +43,30 @@ namespace Scripts.Skills.Utility.Hiding
             Disturb(type, false);
         }
 
-        private void Disturb(DisturbType type, bool v2)
+        private void Disturb(DisturbType type, bool ResistAble)
+        {
+            if ( m_state == HidingState.TryingToHide)
+            {
+                m_state = HidingState.None;
+
+                OnDisturb(type, true);
+
+                if (m_HidingTimer != null)
+                    m_HidingTimer.Stop();
+            }
+        }
+
+        private void OnDisturb(DisturbType type, bool v)
         {
             throw new NotImplementedException();
+        }
+
+        private class HidingTimer : Timer
+        {
+            public HidingTimer(TimeSpan HideDelay) : base(HideDelay)
+            {
+
+            }
         }
     }
 }
