@@ -18,6 +18,7 @@ namespace Scripts.Skills.Utility.Hiding
         TimeSpan HideDelay;
 
         public Mobile Hider { get { return m_hider; } }
+        public HidingState State { get { return m_state; } set {m_state = value; } }
 
         public Hide( Mobile m)
         {
@@ -28,10 +29,21 @@ namespace Scripts.Skills.Utility.Hiding
         {
             m_StartHideTime = Core.TickCount;
 
-            if (m_state == HidingState.TryingToHide)
-                Disturb(DisturbType.NewHide);
+            /*
+            //This crashes when I use this.
+            if (((Hide)m_hider.Hiding).State == HidingState.TryingToHide)
+            {
+                Console.WriteLine("Hier tegoei disturben");
+            }
+            */
 
-            if(!m_hider.CheckAlive())
+            if (m_hider.Hiding != null && m_hider.Hiding.IsHiding)
+            {
+                Disturb(DisturbType.NewHide);
+                Console.WriteLine("Disturb new hiding request");
+            }
+
+            if (!m_hider.CheckAlive())
             {
                 return false;
             }else if (m_hider.Frozen || m_hider.Paralyzed)
@@ -76,6 +88,10 @@ namespace Scripts.Skills.Utility.Hiding
             if (m_state == HidingState.TryingToHide)
             {
                 m_state = HidingState.None;
+                m_hider.Hiding = null;
+
+                if (type == DisturbType.NewHide)
+                    m_hider.SendMessage("New Hiding request");
 
                 OnDisturb(type, true);
 
@@ -88,19 +104,12 @@ namespace Scripts.Skills.Utility.Hiding
         {
             Console.WriteLine("FinishedSequence");
             m_state = HidingState.None;
-            
 
             if (m_hider.Hiding == this)
             {
-                Console.WriteLine("set m_hider.hiding = null");
+                Console.WriteLine("setting m_hider.hiding = null");
                 m_hider.Hiding = null;
-            }else
-            {
-                Console.WriteLine("Hiding =/= this");
-            }
-                
-            //succesfully hide
-            m_hider.Hidden = true;
+            }                
         }
 
         public bool IsHiding
@@ -157,7 +166,6 @@ namespace Scripts.Skills.Utility.Hiding
 
                 else if (m_Hiding.m_state == HidingState.TryingToHide && m_Hiding.m_hider.UseSkill(SkillName.Hiding))
                 {
-                    m_Hiding.m_HidingTimer = null;
                     m_Hiding.OnHide();
                     m_Hiding.m_HidingTimer = null;
 

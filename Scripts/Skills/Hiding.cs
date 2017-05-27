@@ -187,12 +187,17 @@ namespace Server.SkillHandlers
             //Hide class code
 
             Console.WriteLine("Start hiding");
+            Console.WriteLine("OnUse Hiding.cs");
 
             Hide hide = new HidingHide(m);
 
             hide.TryToHide();
 
-            return TimeSpan.FromSeconds(1.0);
+            Console.WriteLine("ishidng: {0}", Convert.ToString(hide.IsHiding));
+            if (hide.IsHiding)
+                return TimeSpan.FromSeconds(3.0);
+
+            return TimeSpan.Zero;
 		}
 
         private class HidingHide : Hide
@@ -255,20 +260,6 @@ namespace Server.SkillHandlers
                 }
                 
             }
-        }
-
-        public void Disturb( DisturbType type, Mobile m)
-        {
-            if (Core.AOS && m.Player && type == DisturbType.Hurt)
-            {
-                timer.Stop();
-            }
-                
-        }
-
-        public virtual void OnHidingHurt(Mobile m)
-        {
-            Disturb(DisturbType.Hurt, m);
         }
     }
 

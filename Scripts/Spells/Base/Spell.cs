@@ -494,7 +494,19 @@ namespace Server.Spells
 			m_StartCastTime = Core.TickCount;
 
 			if ( Core.AOS && m_Caster.Spell is Spell && ((Spell)m_Caster.Spell).State == SpellState.Sequencing )
-				((Spell)m_Caster.Spell).Disturb( DisturbType.NewCast );
+            {
+                ((Spell)m_Caster.Spell).Disturb(DisturbType.NewCast);
+            }
+				
+
+            if (m_Caster.Spell is Spell )
+            {
+                Console.WriteLine("m_Caster.Spell is Spell");
+            }
+            else
+            {
+                Console.WriteLine("m_Caster.Spell IS NOT Spell");
+            }
 
 			if ( !m_Caster.CheckAlive() )
 			{
