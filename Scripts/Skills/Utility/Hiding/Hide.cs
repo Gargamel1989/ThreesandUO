@@ -13,6 +13,7 @@ namespace Scripts.Skills.Utility.Hiding
     {
         HidingState m_state;
         HidingTimer m_HidingTimer;
+        Mobile m_hider;
 
         public bool IsHiding
         {
@@ -63,9 +64,34 @@ namespace Scripts.Skills.Utility.Hiding
 
         private class HidingTimer : Timer
         {
-            public HidingTimer(TimeSpan HideDelay) : base(HideDelay)
-            {
+            private Hide m_Hiding;
 
+            public HidingTimer(Hide Hiding, TimeSpan HideDelay) : base(HideDelay)
+            {
+                this.m_Hiding = Hiding;
+
+                Priority = TimerPriority.TwentyFiveMS;
+            }
+
+            protected override void OnTick()
+            {
+                if (m_Hiding == null && m_Hiding.m_hider == null)
+                {
+                    return;
+                }
+
+                else if (m_Hiding.m_state == HidingState.TryingToHide && m_Hiding.m_hider.UseSkill(SkillName.Hiding))
+                {
+                    m_Hiding.m_HidingTimer = null;
+                    m_Hiding.m_hider.Hidden = true;
+                    m_Hiding.m_hider.Warmode = false;
+
+                }
+            }
+
+            public void Tick()
+            {
+                OnTick();
             }
         }
     }
