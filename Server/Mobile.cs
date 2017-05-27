@@ -3489,6 +3489,8 @@ namespace Server
             {
                 if (m_hiding != null && value != null)
                     Console.WriteLine("Warning: Hiding has been overwritten" );
+
+                m_hiding = value;
             }
         }
 

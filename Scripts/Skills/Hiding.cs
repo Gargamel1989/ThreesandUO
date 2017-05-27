@@ -185,13 +185,12 @@ namespace Server.SkillHandlers
             */
 
             //Hide class code
+
+            Console.WriteLine("Start hiding");
+
             Hide hide = new HidingHide(m);
 
             hide.TryToHide();
-
-            m.RevealingAction();
-
-
 
             return TimeSpan.FromSeconds(1.0);
 		}
@@ -203,8 +202,7 @@ namespace Server.SkillHandlers
             }
 
             public override void OnHide()
-            {
-                Hider.Hidden = true;
+            {               
                 FinishSequence();
             }
 
