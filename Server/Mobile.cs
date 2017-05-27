@@ -3745,6 +3745,11 @@ namespace Server
 			return true;
 		}
 
+        public virtual bool CheckHiding( IHiding hiding)
+        {
+            return true;
+        }
+
 		/// <summary>
 		/// Overridable. Virtual event invoked when the Mobile casts a <paramref name="spell" />.
 		/// </summary>

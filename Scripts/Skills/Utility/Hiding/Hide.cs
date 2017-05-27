@@ -11,9 +11,75 @@ namespace Scripts.Skills.Utility.Hiding
     }
     public abstract class Hide : IHiding
     {
-        HidingState m_state;
-        HidingTimer m_HidingTimer;
-        Mobile m_hider;
+        private HidingState m_state;
+        private HidingTimer m_HidingTimer;
+        private Mobile m_hider;
+        private long m_StartHideTime;
+
+        public Mobile Hider { get { return m_hider; } }
+
+        public Hide( Mobile m)
+        {
+            this.m_hider = m;
+        }
+
+        public bool TryToHide()
+        {
+            m_StartHideTime = Core.TickCount;
+
+            if (m_state == HidingState.TryingToHide)
+                Disturb(DisturbType.NewHide);
+
+            if(!m_hider.CheckAlive())
+            {
+                return false;
+            }else if (m_hider.Frozen || m_hider.Paralyzed)
+            {
+                m_hider.SendMessage("You cannot hide while frozen.");
+            }else if(m_hider.Hiding == null && m_hider.CheckHiding(this) && CheckHiding() && m_hider.Region.OnBeginHding(m_hider, this))
+            {
+                m_state = HidingState.TryingToHide;
+                m_hider.Hiding = this;
+
+                m_HidingTimer = new HidingTimer(this, TimeSpan.FromSeconds(3.0));
+
+                OnBeginHide();
+                return true;
+            }
+
+            return false;
+        }
+        
+        public virtual bool CheckHiding()
+        {
+            return true;
+        }
+
+        public void Disturb(DisturbType type)
+        {
+            Disturb(type, false);
+        }
+
+        private void Disturb(DisturbType type, bool ResistAble)
+        {
+            if (m_state == HidingState.TryingToHide)
+            {
+                m_state = HidingState.None;
+
+                OnDisturb(type, true);
+
+                if (m_HidingTimer != null)
+                    m_HidingTimer.Stop();
+            }
+        }
+
+        public virtual void FinishSequence()
+        {
+            m_state = HidingState.None;
+
+            if (m_hider.Hiding == this)
+                m_hider.Hiding = null;
+        }
 
         public bool IsHiding
         {
@@ -23,7 +89,7 @@ namespace Scripts.Skills.Utility.Hiding
             }
         }
 
-        public void OnHiderHurt()
+        public virtual void OnHiderHurt()
         {
             if (IsHiding)
             {
@@ -39,28 +105,15 @@ namespace Scripts.Skills.Utility.Hiding
             throw new NotImplementedException();
         }
 
-        public void Disturb(DisturbType type)
-        {
-            Disturb(type, false);
-        }
-
-        private void Disturb(DisturbType type, bool ResistAble)
-        {
-            if ( m_state == HidingState.TryingToHide)
-            {
-                m_state = HidingState.None;
-
-                OnDisturb(type, true);
-
-                if (m_HidingTimer != null)
-                    m_HidingTimer.Stop();
-            }
-        }
-
         private void OnDisturb(DisturbType type, bool v)
         {
             throw new NotImplementedException();
         }
+
+        public abstract void OnHide();
+
+        public virtual void OnBeginHide()
+        { }
 
         private class HidingTimer : Timer
         {

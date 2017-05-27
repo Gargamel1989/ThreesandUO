@@ -177,12 +177,43 @@ namespace Server.SkillHandlers
 
         public static TimeSpan OnUse( Mobile m )
 		{
+            //code before
+            /*
             timer = new hiddenStatus(m, 0);
 
             timer.Start();
+            */
+
+            //Hide class code
+            Hide hide = new HidingHide(m);
+
+            hide.TryToHide();
+
+            m.RevealingAction();
+
+
 
             return TimeSpan.FromSeconds(1.0);
 		}
+
+        private class HidingHide : Hide
+        {
+            public HidingHide( Mobile m ) : base( m )
+            {
+            }
+
+            public override void OnHide()
+            {
+                Hider.Hidden = true;
+                FinishSequence();
+            }
+
+            public override void OnHiderHurt()
+            {
+                if (IsHiding)
+                    Disturb(DisturbType.Hurt);
+            }
+        }
 
         public class hiddenStatus : Timer
         {

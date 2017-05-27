@@ -717,7 +717,15 @@ namespace Server
 			return true;
 		}
 
-		public virtual void OnSpellCast( Mobile m, ISpell s )
+        public virtual bool OnBeginHding(Mobile m, IHiding h)
+        {
+            if (m_Parent != null)
+                return m_Parent.OnBeginHding(m, h);
+
+            return true;
+        }
+
+        public virtual void OnSpellCast( Mobile m, ISpell s )
 		{
 			if ( m_Parent != null )
 				m_Parent.OnSpellCast( m, s );
