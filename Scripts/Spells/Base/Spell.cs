@@ -497,16 +497,6 @@ namespace Server.Spells
             {
                 ((Spell)m_Caster.Spell).Disturb(DisturbType.NewCast);
             }
-				
-
-            if (m_Caster.Spell is Spell )
-            {
-                Console.WriteLine("m_Caster.Spell is Spell");
-            }
-            else
-            {
-                Console.WriteLine("m_Caster.Spell IS NOT Spell");
-            }
 
 			if ( !m_Caster.CheckAlive() )
 			{
@@ -923,12 +913,14 @@ namespace Server.Spells
 
 			protected override void OnTick()
 			{
-				if ( m_Spell == null || m_Spell.m_Caster == null )
+                Console.WriteLine("Inside CastTimer: OnTick()");
+                if ( m_Spell == null || m_Spell.m_Caster == null )
 				{
 					return;
 				}
 				else if ( m_Spell.m_State == SpellState.Casting && m_Spell.m_Caster.Spell == m_Spell )
 				{
+                    Console.WriteLine("Inside CastTimer: OnTick(): If Function");
 					m_Spell.m_State = SpellState.Sequencing;
 					m_Spell.m_CastTimer = null;
 					m_Spell.m_Caster.OnSpellCast( m_Spell );

@@ -31,10 +31,6 @@ namespace Server.SkillHandlers
 			SkillInfo.Table[21].Callback = new SkillUseCallback( OnUse );
 		}
 
-        public void test()
-        {
-
-        }
         private class HideTimer : Timer
         {
             private Mobile m;
@@ -187,15 +183,15 @@ namespace Server.SkillHandlers
             //Hide class code
 
             Console.WriteLine("Start hiding");
-            Console.WriteLine("OnUse Hiding.cs");
-
+            
             Hide hide = new HidingHide(m);
-
-            hide.TryToHide();
-
+            
+            Console.WriteLine("Hide.TryToHide() = {0}", Convert.ToString(hide.TryToHide()));
+            /*
             Console.WriteLine("ishidng: {0}", Convert.ToString(hide.IsHiding));
             if (hide.IsHiding)
                 return TimeSpan.FromSeconds(3.0);
+            */
 
             return TimeSpan.Zero;
 		}
@@ -207,7 +203,8 @@ namespace Server.SkillHandlers
             }
 
             public override void OnHide()
-            {               
+            {
+                Console.WriteLine("OnHide Hiding.cs");
                 FinishSequence();
             }
 
@@ -217,51 +214,5 @@ namespace Server.SkillHandlers
                     Disturb(DisturbType.Hurt);
             }
         }
-
-        public class hiddenStatus : Timer
-        {
-            int m_count;
-            Mobile m;
-            public hiddenStatus(Mobile m, int count) : base(TimeSpan.FromSeconds(1.0), TimeSpan.FromSeconds(1.0), count)
-            {
-                this.m = m;
-                this.m_count = count;
-            }
-
-            protected override void OnTick()
-            {
-                m_count++;
-                if (!(m.FindMostRecentDamageEntry(true) == null))
-                {
-                    var test = m.FindMostRecentDamageEntry(true);
-
-                    DateTime damageTimer = test.LastDamage;
-                    TimeSpan damgeTime = DateTime.UtcNow - damageTimer;
-
-                    Console.WriteLine("now: {0}", damgeTime.TotalMilliseconds);
-                }
-                
-
-                if ( m_count <= 10)
-                {
-                    m.Emote("counter: {0}", Convert.ToString(m_count));
-                }
-                else
-                {
-                    this.Stop();
-                    m.Hidden = true;
-                }
-
-                if (m.Warmode == true)
-                {
-                    m.Emote("Warmode: {0}", Convert.ToString(m.Warmode));
-                    this.Stop();
-                    return;
-                }
-                
-            }
-        }
     }
-
-    
 }

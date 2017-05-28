@@ -8,66 +8,80 @@ namespace Scripts.Skills.Utility.Hiding
     {
         None = 0,
         TryingToHide = 1,    // We are in the process of hiding (that is, waiting GetHideTime()). Hiding may be interupted in this state.
+        Sequencing = 2
     }
     public abstract class Hide : IHiding
     {
         private HidingState m_state;
         private HidingTimer m_HidingTimer;
         private Mobile m_hider;
-        private long m_StartHideTime;
-        TimeSpan HideDelay;
+        private long m_StartHideTimer;
 
         public Mobile Hider { get { return m_hider; } }
         public HidingState State { get { return m_state; } set {m_state = value; } }
 
         public Hide( Mobile m)
         {
-            this.m_hider = m;
+            m_hider = m;
         }
 
         public bool TryToHide()
         {
-            m_StartHideTime = Core.TickCount;
+            Console.WriteLine("hide.TryToHide() hide.cs");
+            m_StartHideTimer = Core.TickCount;
 
             /*
             //This crashes when I use this.
             if (((Hide)m_hider.Hiding).State == HidingState.TryingToHide)
             {
-                Console.WriteLine("Hier tegoei disturben");
+                //Distrub code
             }
             */
 
             if (m_hider.Hiding != null && m_hider.Hiding.IsHiding)
             {
-                Disturb(DisturbType.NewHide);
                 Console.WriteLine("Disturb new hiding request");
+                Disturb(DisturbType.NewHide);
             }
 
             if (!m_hider.CheckAlive())
             {
                 return false;
-            }else if (m_hider.Frozen || m_hider.Paralyzed)
+            }
+            else if (m_hider.Frozen || m_hider.Paralyzed)
             {
                 m_hider.SendMessage("You cannot hide while frozen.");
-            }else if(m_hider.Hiding == null && m_hider.CheckHiding(this) && CheckHiding() && m_hider.Region.OnBeginHding(m_hider, this))
+            }
+            else if (Core.TickCount - m_hider.NextHideTime < 0)
             {
+                m_hider.SendMessage("You have not yet recoverd from hiding");
+            }
+            else if(m_hider.Hiding == null && m_hider.CheckHiding(this) && CheckHiding() && m_hider.Region.OnBeginHiding(m_hider, this))
+            {
+                Console.WriteLine("HideState.TryToHide hide.cs");
                 m_state = HidingState.TryingToHide;
                 m_hider.Hiding = this;
-                HideDelay = TimeSpan.FromSeconds(3.0);
+                TimeSpan HideDelay = this.GetHideDelay();
 
+                
                 m_HidingTimer = new HidingTimer(this, HideDelay);
 
-                OnBeginHide();
+                //OnBeginHide();
 
-                if (HideDelay > TimeSpan.Zero)
-                {
+                if (HideDelay > TimeSpan.Zero){
+                    Console.WriteLine("HideState.TryToHide m_HiderTimer.Start() hide.cs");
                     m_HidingTimer.Start();
                 }
-                else
-                {
+                else{
                     m_HidingTimer.Tick();
+                    Console.WriteLine("Hidedelay = zero");
                 }
+
                 return true;
+            }
+            else
+            {
+                return false;
             }
 
             return false;
@@ -97,6 +111,8 @@ namespace Scripts.Skills.Utility.Hiding
 
                 if (m_HidingTimer != null)
                     m_HidingTimer.Stop();
+
+                m_hider.NextHideTime = Core.TickCount + (int)GetDisturbRecovery().Milliseconds;
             }
         }
 
@@ -110,6 +126,29 @@ namespace Scripts.Skills.Utility.Hiding
                 Console.WriteLine("setting m_hider.hiding = null");
                 m_hider.Hiding = null;
             }                
+        }
+
+        public virtual TimeSpan GetHideRecovery()
+        {
+            return TimeSpan.FromSeconds(0.75);
+        }
+
+        public virtual TimeSpan GetDisturbRecovery()
+        {
+            double delay = 1.0 - Math.Sqrt((Core.TickCount - m_StartHideTimer));
+
+            if ( delay < 0.2)
+                delay = 0.2;
+
+            return TimeSpan.FromSeconds(delay);
+        }
+
+        public virtual TimeSpan GetHideDelay()
+        {
+            TimeSpan HideDelayBase = TimeSpan.FromSeconds(3.0);
+            TimeSpan baseDelay = HideDelayBase;
+
+            return baseDelay;
         }
 
         public bool IsHiding
@@ -152,31 +191,43 @@ namespace Scripts.Skills.Utility.Hiding
 
             public HidingTimer(Hide Hiding, TimeSpan HideDelay) : base(HideDelay)
             {
-                this.m_Hiding = Hiding;
+                m_Hiding = Hiding;
 
                 Priority = TimerPriority.TwentyFiveMS;
             }
 
             protected override void OnTick()
             {
+                Console.WriteLine("inside HidingTimer: OnTick() startfunction: hide.cs");
+                
                 if (m_Hiding == null && m_Hiding.m_hider == null)
                 {
+                    Console.WriteLine("inside HidingTimer: m_Hiding == null && m_Hiding.m_hider == null startIf: hide.cs");
                     return;
                 }
-
+                
                 else if (m_Hiding.m_state == HidingState.TryingToHide && m_Hiding.m_hider.UseSkill(SkillName.Hiding))
                 {
-                    m_Hiding.OnHide();
+                    Console.WriteLine("inside HidingTimer: m_Hiding.m_state == HidingState.TryingToHid startIf: hide.cs");
+                    m_Hiding.m_state = HidingState.Sequencing;
                     m_Hiding.m_HidingTimer = null;
+                    m_Hiding.m_hider.OnHiding(m_Hiding);
+                    if (m_Hiding.m_hider.Region != null)
+                        m_Hiding.m_hider.Region.OnHide(m_Hiding.m_hider, m_Hiding);
+                    m_Hiding.m_hider.NextHideTime = Core.TickCount + (int)m_Hiding.GetHideRecovery().TotalMilliseconds;
 
-                }else if( m_Hiding.m_HidingTimer == null)
-                {
-                    Console.WriteLine("m_Hiding.m_HidngTimer = null");
+                    m_Hiding.OnHide();
+
+                    m_Hiding.m_HidingTimer = null;
+                    Console.WriteLine("inside HidingTimer: m_Hiding.m_state == HidingState.TryingToHid endIf: hide.cs");
                 }
+                Console.WriteLine("inside HidingTimer: OnTick() endfunction: hide.cs");
+                
             }
 
             public void Tick()
             {
+                Console.WriteLine("inside HidingTimer: Tick()Function: hide.cs");
                 OnTick();
             }
         }

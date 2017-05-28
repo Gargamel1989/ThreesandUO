@@ -750,6 +750,7 @@ namespace Server
 		private bool m_DisplayGuildTitle;
 		private Mobile m_GuildFealty;
 		private long m_NextSpellTime;
+        private long m_NextHideTime;
 		private Timer m_ExpireCombatant;
 		private Timer m_ExpireCriminal;
 		private Timer m_ExpireAggrTimer;
@@ -3759,6 +3760,14 @@ namespace Server
 		public virtual void OnSpellCast( ISpell spell )
 		{
 		}
+
+        /// <summary>
+		/// Overridable. Virtual event invoked when the Mobile tries to <paramref name="hide" />.
+		/// </summary>
+		/// <param name="hide"></param>
+        public virtual void OnHiding( IHiding hide )
+        {
+        }
 
 		/// <summary>
 		/// Overridable. Virtual event invoked after <see cref="TotalWeight" /> changes.
@@ -11336,6 +11345,18 @@ namespace Server
 				m_NextSpellTime = value;
 			}
 		}
+
+        public long NextHideTime
+        {
+            get
+            {
+                return m_NextHideTime;
+            }
+            set
+            {
+                m_NextHideTime = value;
+            }
+        }
 
 		/// <summary>
 		/// Overridable. Virtual event invoked when the sector this Mobile is in gets <see cref="Sector.Activate">activated</see>.
