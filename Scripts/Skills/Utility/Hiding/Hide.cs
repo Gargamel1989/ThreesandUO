@@ -1,6 +1,6 @@
 ﻿using System;
 using Server;
-
+using Server.Network;
 
 namespace Scripts.Skills.Utility.Hiding
 {
@@ -125,7 +125,11 @@ namespace Scripts.Skills.Utility.Hiding
             {
                 Console.WriteLine("setting m_hider.hiding = null");
                 m_hider.Hiding = null;
-            }                
+            }
+
+            m_hider.Hidden = true;
+            m_hider.Warmode = false;
+            m_hider.LocalOverheadMessage(MessageType.Regular, 0x1F4, 501240); // You have hidden yourself well.               
         }
 
         public virtual TimeSpan GetHideRecovery()
