@@ -182,6 +182,7 @@ namespace Scripts.Skills.Utility.Hiding
         private void OnDisturb(DisturbType type, bool v)
         {
             m_hider.SendMessage("You failed to hide.");
+            
         }
 
         public abstract void OnHide();
