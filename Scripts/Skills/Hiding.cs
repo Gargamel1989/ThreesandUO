@@ -173,27 +173,13 @@ namespace Server.SkillHandlers
 
         public static TimeSpan OnUse( Mobile m )
 		{
-            //code before
-            /*
-            timer = new hiddenStatus(m, 0);
-
-            timer.Start();
-            */
-
-            //Hide class code
-
             Console.WriteLine("Start hiding");
             
             Hide hide = new HidingHide(m);
             
             Console.WriteLine("Hide.TryToHide() = {0}", Convert.ToString(hide.TryToHide()));
-            /*
-            Console.WriteLine("ishidng: {0}", Convert.ToString(hide.IsHiding));
-            if (hide.IsHiding)
-                return TimeSpan.FromSeconds(3.0);
-            */
 
-            return TimeSpan.Zero;
+            return TimeSpan.FromSeconds(0.25);
 		}
 
         private class HidingHide : Hide
