@@ -3099,6 +3099,7 @@
     <Compile Include="Skills\Tracking.cs" />
     <Compile Include="Skills\Utility\Hiding\DisturbType.cs" />
     <Compile Include="Skills\Utility\Hiding\Hide.cs" />
+    <Compile Include="Skills\Utility\Hiding\HidingState.cs" />
     <Compile Include="SpecialSystems\Engines\GiftGiving.cs" />
     <Compile Include="SpecialSystems\Engines\ItemFixes.cs" />
     <Compile Include="SpecialSystems\Engines\PreventInaccess.cs" />
