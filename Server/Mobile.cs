@@ -8095,8 +8095,11 @@ namespace Server
 					if( m_Spell != null )
 						m_Spell.OnConnectionChanged();
 
-					//if ( m_Spell != null )
-					//	m_Spell.FinishSequence();
+                    //if ( m_Spell != null )
+                    //	m_Spell.FinishSequence();
+
+                    if (m_hiding != null)
+                        m_hiding.OnConnectionChanged();
 
 					if( m_NetState != null )
 						m_NetState.CancelAllTrades();
