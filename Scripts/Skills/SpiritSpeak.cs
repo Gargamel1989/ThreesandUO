@@ -15,7 +15,6 @@ namespace Server.SkillHandlers
 
 		public static TimeSpan OnUse( Mobile m )
 		{
-            Console.WriteLine("start spiritspeaking");
 			if ( !Core.AOS )
 			{
 				Spell spell = new SpiritSpeakSpell( m );
