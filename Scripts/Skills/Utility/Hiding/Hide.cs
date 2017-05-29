@@ -28,7 +28,6 @@ namespace Server.Hiding.hide
             if (m_hider.Hiding is Hide && ((Hide)m_hider.Hiding).State == HidingState.TryingToHide)
             {
                 //Distrub code
-                Console.WriteLine("Disturb new hiding request");
                 ((Hide)m_hider.Hiding).Disturb(DisturbType.NewHide);
             }
 
@@ -102,17 +101,12 @@ namespace Server.Hiding.hide
 
         public virtual void FinishSequence()
         {
-            Console.WriteLine("FinishedSequence");
             m_state = HidingState.None;
 
             if (m_hider.Hiding == this)
             {
                 m_hider.Hiding = null;
             }
-
-            m_hider.Hidden = true;
-            m_hider.Warmode = false;
-            m_hider.LocalOverheadMessage(MessageType.Regular, 0x1F4, 501240); // You have hidden yourself well.               
         }
 
         public virtual TimeSpan GetHideRecovery()
@@ -146,6 +140,11 @@ namespace Server.Hiding.hide
             }
         }
 
+        public void OnConnectionChanged()
+        {
+            FinishSequence();
+        }
+
         public virtual void OnHiderHurt()
         {
             if (IsHiding)
@@ -159,7 +158,7 @@ namespace Server.Hiding.hide
 
         public void OnHiderKilled()
         {
-            throw new NotImplementedException();
+            Disturb(DisturbType.Kill);
         }
 
         private void OnDisturb(DisturbType type, bool v)
@@ -189,7 +188,6 @@ namespace Server.Hiding.hide
                 
                 if (m_Hiding == null && m_Hiding.m_hider == null)
                 {
-                    
                     return;
                 }
                 
