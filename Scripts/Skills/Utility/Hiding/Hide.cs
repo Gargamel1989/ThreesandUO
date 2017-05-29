@@ -30,6 +30,7 @@ namespace Server.Hiding.hide
             if (m_hider.Hiding is Hide && ((Hide)m_hider.Hiding).State == HidingState.TryingToHide)
             {
                 //Distrub code
+
             }
             
 
@@ -206,7 +207,7 @@ namespace Server.Hiding.hide
                     return;
                 }
                 
-                else if (m_Hiding.m_state == HidingState.TryingToHide && m_Hiding.m_hider.UseSkill(SkillName.Hiding))
+                else if (m_Hiding.m_state == HidingState.TryingToHide ) //&& m_Hiding.m_hider.UseSkill(SkillName.Hiding))
                 {
                     Console.WriteLine("inside HidingTimer: m_Hiding.m_state == HidingState.TryingToHid startIf: hide.cs");
                     m_Hiding.m_state = HidingState.Sequencing;
