@@ -3,7 +3,7 @@ using Server.Targeting;
 using Server.Items;
 using Server.Network;
 using Server.Multis;
-
+using Server.Hiding.hide;
 using Scripts.Skills.Utility.Hiding;
 
 namespace Server.SkillHandlers
@@ -11,10 +11,8 @@ namespace Server.SkillHandlers
 	public class Hiding
 	{
         private static bool m_CombatOverride;
-        
 
         private static Timer timer;
-        public bool isHiding { get; set; }
 
         public static bool CombatOverride
 		{
@@ -23,8 +21,6 @@ namespace Server.SkillHandlers
 		}
 
         public long m_StartHiding { get; set; }
-
-       
 
         public static void Initialize()
 		{
