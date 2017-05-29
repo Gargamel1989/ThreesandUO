@@ -94,6 +94,7 @@ namespace Server
         bool IsHiding { get; }
         void OnHiderHurt();
         void OnHiderKilled();
+        void OnConnectionChanged();
     }
 
 	public interface IParty
