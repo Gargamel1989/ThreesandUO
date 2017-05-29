@@ -20,7 +20,28 @@ namespace Server.Spells.Eighth
 
 		public override SpellCircle Circle { get { return SpellCircle.Eighth; } }
 
-		public EnergyVortexSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is IPoint3D)
+                {
+                    Target((IPoint3D)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Invalid Target");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public EnergyVortexSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -68,6 +89,40 @@ namespace Server.Spells.Eighth
 			FinishSequence();
 		}
 
+
+        private class InternalSphereTarget : Target
+        {
+            private EnergyVortexSpell m_Owner;
+
+            public InternalSphereTarget(EnergyVortexSpell owner)
+                : base(8, true, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is IPoint3D)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
+
 		private class InternalTarget : Target
 		{
 			private EnergyVortexSpell m_Owner;
@@ -87,7 +142,7 @@ namespace Server.Spells.Eighth
 			{
 				from.SendLocalizedMessage( 501943 ); // Target cannot be seen. Try again.
 				from.Target = new InternalTarget( m_Owner );
-				from.Target.BeginTimeout( from, TimeoutTime - DateTime.UtcNow );
+				from.Target.BeginTimeout( from, TimeoutTime - DateTime.Now );
 				m_Owner = null;
 			}
 

@@ -21,7 +21,28 @@ namespace Server.Spells.Second
 
 		public override SpellCircle Circle { get { return SpellCircle.Second; } }
 
-		public ProtectionSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is Mobile)
+                {
+                    Target((Mobile)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public ProtectionSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -44,7 +65,55 @@ namespace Server.Spells.Second
 			return true;
 		}
 
-		private static Hashtable m_Table = new Hashtable();
+        public void Target(Mobile m)
+        {
+            if (!Caster.CanSee(m))
+            {
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
+            }
+            else if (!CheckLineOfSight(m))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
+            else if (Core.AOS)
+            {
+                if (CheckSequence())
+                    Toggle(Caster, Caster);
+
+                FinishSequence();
+            }
+            else
+            {
+                if (CheckSequence())
+                {
+                    if (m.BeginAction(typeof(DefensiveSpell)))
+                    {
+                        double value = (int)(Caster.Skills[SkillName.EvalInt].Value + Caster.Skills[SkillName.Meditation].Value + Caster.Skills[SkillName.Inscribe].Value);
+                        value /= 4;
+
+                        if (value < 0)
+                            value = 0;
+                        else if (value > 75)
+                            value = 75.0;
+
+                        Registry.Add(m, value);
+                        new InternalTimer(m).Start();
+
+                        Caster.FixedParticles(0x375A, 9, 20, 5016, EffectLayer.Waist);
+                        Caster.PlaySound(0x1ED);
+                    }
+                    else
+                    {
+                        Caster.SendLocalizedMessage(1005385); // The spell will not adhere to you at this time.
+                    }
+                }
+
+                FinishSequence();
+            }
+        }
+
+	    private static Hashtable m_Table = new Hashtable();
 
 		public static void Toggle( Mobile caster, Mobile target )
 		{
@@ -93,22 +162,6 @@ namespace Server.Spells.Second
 				target.RemoveSkillMod( (SkillMod)mods[1] );
 
 				BuffInfo.RemoveBuff(target, BuffIcon.Protection);
-			}
-		}
-
-		public static void EndProtection( Mobile m )
-		{
-			if ( m_Table.Contains( m ) )
-			{
-				object[] mods = (object[]) m_Table[ m ];
-
-				m_Table.Remove( m );
-				Registry.Remove( m );
-
-				m.RemoveResistanceMod( (ResistanceMod) mods[ 0 ] );
-				m.RemoveSkillMod( (SkillMod) mods[ 1 ] );
-
-				BuffInfo.RemoveBuff( m, BuffIcon.Protection );
 			}
 		}
 
@@ -182,5 +235,54 @@ namespace Server.Spells.Second
 				DefensiveSpell.Nullify( m_Caster );
 			}
 		}
+
+        public static void EndProtection(Mobile m)
+        {
+            if (m_Table.Contains(m))
+            {
+                object[] mods = (object[])m_Table[m];
+
+                m_Table.Remove(m);
+                Registry.Remove(m);
+
+                m.RemoveResistanceMod((ResistanceMod)mods[0]);
+                m.RemoveSkillMod((SkillMod)mods[1]);
+
+                BuffInfo.RemoveBuff(m, BuffIcon.Protection);
+            }
+        }
+
+        private class InternalSphereTarget : Target
+        {
+            private ProtectionSpell m_Owner;
+
+            public InternalSphereTarget(ProtectionSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.Beneficial)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Mobile)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 	}
 }

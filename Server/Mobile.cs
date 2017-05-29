@@ -5155,7 +5155,8 @@ namespace Server
 		/// </summary>
 		public virtual void OnDamage( int amount, Mobile from, bool willKill )
 		{
-		}
+            from.SendAsciiMessage(0x22, string.Format("You took {0} damage!", amount.ToString("#,0")));
+        }
 
 		public virtual void Damage( int amount )
 		{

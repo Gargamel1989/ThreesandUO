@@ -1,5 +1,6 @@
 using System;
 using Server.Items;
+using Server.Targeting;
 
 namespace Server.Spells.First
 {
@@ -16,7 +17,28 @@ namespace Server.Spells.First
 
 		public override SpellCircle Circle { get { return SpellCircle.First; } }
 
-		public CreateFoodSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+	    public override void OnSphereCast()
+	    {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is LandTarget || SpellTarget is StaticTarget)
+                {
+                    Target((IPoint3D)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("You must target the ground with this spell.");
+                }
+            }
+            FinishSequence();
+	    }
+
+	    public CreateFoodSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -33,6 +55,33 @@ namespace Server.Spells.First
 				new FoodInfo( typeof( Apple ), "an apple" ),
 				new FoodInfo( typeof( Peach ), "a peach" )
 			};
+
+        public void Target(IPoint3D target)
+        {
+            if (!Caster.CanSee(target))
+            {
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
+            }
+            else if (!CheckLineOfSight(target))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
+            if (CheckSequence())
+            {
+                FoodInfo foodInfo = m_Food[Utility.Random(m_Food.Length)];
+                Item food = foodInfo.Create();
+
+                food.MoveToWorld(new Point3D(target), Caster.Map);
+
+                    // Sphere don't show any message when food is created
+
+                    Caster.FixedParticles(0, 10, 5, 2003, EffectLayer.RightHand);
+                    Caster.PlaySound(0x1E2);
+            }
+
+            FinishSequence();
+        }
 
 		public override void OnCast()
 		{
@@ -55,6 +104,40 @@ namespace Server.Spells.First
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private CreateFoodSpell m_Owner;
+
+            public InternalSphereTarget(CreateFoodSpell owner)
+                : base(Core.ML ? 10 : 12, true, TargetFlags.None)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is LandTarget || o is StaticTarget)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("You must target the ground with this spell.");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+
+        }
 	}
 
 	public class FoodInfo

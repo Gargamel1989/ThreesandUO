@@ -18,7 +18,28 @@ namespace Server.Spells.Third
 
 		public override SpellCircle Circle { get { return SpellCircle.Third; } }
 
-		public TeleportSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is IPoint3D)
+                {
+                    Target((IPoint3D)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public TeleportSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -50,9 +71,6 @@ namespace Server.Spells.Third
 
 			SpellHelper.GetSurfaceTop( ref p );
 
-			Point3D from = Caster.Location;
-			Point3D to = new Point3D( p );
-
 			if ( Factions.Sigil.ExistsOn( Caster ) )
 			{
 				Caster.SendLocalizedMessage( 1061632 ); // You can't do that while carrying the sigil.
@@ -64,26 +82,30 @@ namespace Server.Spells.Third
 			else if ( !SpellHelper.CheckTravel( Caster, TravelCheckType.TeleportFrom ) )
 			{
 			}
-			else if ( !SpellHelper.CheckTravel( Caster, map, to, TravelCheckType.TeleportTo ) )
+			else if ( !SpellHelper.CheckTravel( Caster, map, new Point3D( p ), TravelCheckType.TeleportTo ) )
 			{
 			}
 			else if ( map == null || !map.CanSpawnMobile( p.X, p.Y, p.Z ) )
 			{
 				Caster.SendLocalizedMessage( 501942 ); // That location is blocked.
 			}
-			else if ( SpellHelper.CheckMulti( to, map ) )
+			else if ( SpellHelper.CheckMulti( new Point3D( p ), map ) )
 			{
-				Caster.SendLocalizedMessage( 502831 ); // Cannot teleport to that spot.
+				Caster.SendLocalizedMessage( 501942 ); // That location is blocked.
 			}
-			else if ( Region.Find( to, map ).GetRegion( typeof( HouseRegion ) ) != null )
-			{
-				Caster.SendLocalizedMessage( 502829 ); // Cannot teleport to that spot.
-			}
+            else if (!CheckLineOfSight(p))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( CheckSequence() )
 			{
 				SpellHelper.Turn( Caster, orig );
 
 				Mobile m = Caster;
+
+				Point3D from = m.Location;
+				Point3D to = new Point3D( p );
 
 				m.Location = to;
 				m.ProcessDelta();
@@ -113,6 +135,39 @@ namespace Server.Spells.Third
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private TeleportSpell m_Owner;
+
+            public InternalSphereTarget(TeleportSpell owner)
+                : base(Core.ML ? 10 : 12, true, TargetFlags.None)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is IPoint3D)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		public class InternalTarget : Target
 		{

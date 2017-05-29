@@ -22,7 +22,58 @@ namespace Server.Spells.Seventh
 
 		public override SpellCircle Circle { get { return SpellCircle.Seventh; } }
 
-		private RunebookEntry m_Entry;
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                Target(SpellTarget);
+            }
+            FinishSequence();
+        }
+
+        public void Target(object o)
+        {
+            Mobile from = Caster;
+
+            if (o is RecallRune)
+            {
+                RecallRune rune = (RecallRune)o;
+
+                if (rune.Marked)
+                    Effect(rune.Target, rune.TargetMap, true);
+                else
+                    from.SendLocalizedMessage(501803); // That rune is not yet marked.
+            }
+            else if (o is Runebook)
+            {
+                RunebookEntry e = ((Runebook)o).Default;
+
+                if (e != null)
+                    Effect(e.Location, e.Map, true);
+                else
+                    from.SendLocalizedMessage(502354); // Target is not marked.
+            }
+            /*else if ( o is Key && ((Key)o).KeyValue != 0 && ((Key)o).Link is BaseBoat )
+            {
+                BaseBoat boat = ((Key)o).Link as BaseBoat;
+
+                if ( !boat.Deleted && boat.CheckKey( ((Key)o).KeyValue ) )
+                    m_Owner.Effect( boat.GetMarkedLocation(), boat.Map, false );
+                else
+                    from.Send( new MessageLocalized( from.Serial, from.Body, MessageType.Regular, 0x3B2, 3, 501030, from.Name, "" ) ); // I can not gate travel from that object.
+            }*/
+            else
+            {
+                from.Send(new MessageLocalized(from.Serial, from.Body, MessageType.Regular, 0x3B2, 3, 501030, from.Name, "")); // I can not gate travel from that object.
+            }
+        }
+
+	    private RunebookEntry m_Entry;
 
 		public GateTravelSpell( Mobile caster, Item scroll ) : this( caster, scroll, null )
 		{
@@ -142,6 +193,33 @@ namespace Server.Spells.Seventh
 			FinishSequence();
 		}
 
+        private class InternalSphereTarget : Target
+        {
+            private GateTravelSpell m_Owner;
+
+            public InternalSphereTarget(GateTravelSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.None)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
+
 		[DispellableField]
 		private class InternalItem : Moongate
 		{
@@ -233,12 +311,6 @@ namespace Server.Spells.Seventh
 					else
 						from.Send( new MessageLocalized( from.Serial, from.Body, MessageType.Regular, 0x3B2, 3, 501030, from.Name, "" ) ); // I can not gate travel from that object.
 				}*/
-				else if ( o is HouseRaffleDeed && ((HouseRaffleDeed)o).ValidLocation() )
-				{
-					HouseRaffleDeed deed = (HouseRaffleDeed)o;
-
-					m_Owner.Effect( deed.PlotLocation, deed.PlotFacet, true );
-				}
 				else
 				{
 					from.Send( new MessageLocalized( from.Serial, from.Body, MessageType.Regular, 0x3B2, 3, 501030, from.Name, "" ) ); // I can not gate travel from that object.

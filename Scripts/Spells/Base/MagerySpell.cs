@@ -1,6 +1,5 @@
 using System;
 using Server;
-using Server.Targeting;
 using Server.Items;
 
 namespace Server.Spells
@@ -24,6 +23,37 @@ namespace Server.Spells
 
 			return false;
 		}
+
+        public virtual bool UseSphereSystem { get { return true; } }
+
+        public bool CheckLineOfSight(object o)
+        {
+            if (!Caster.InLOS(o))
+            {
+                return false;
+            }
+
+            if (!Caster.InRange((IPoint3D)o, Core.ML ? 10 : 12))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public override bool OnCasterMoving(Direction d)
+        {
+            //In sphere, you are not froze while casting
+            if (UseSphereSystem)
+            {
+                return true;
+            }
+
+            return base.OnCasterMoving(d);
+        }
+
+	    public abstract void SelectTarget();
+
+	    public abstract void OnSphereCast();
 
 		private const double ChanceOffset = 20.0, ChanceLength = 100.0 / 7.0;
 
@@ -97,7 +127,7 @@ namespace Server.Spells
 
 		public override TimeSpan GetCastDelay()
 		{
-			if( !Core.ML && Scroll is BaseWand )
+			if( Scroll is BaseWand )
 				return TimeSpan.Zero;
 
 			if( !Core.AOS )
@@ -113,55 +143,5 @@ namespace Server.Spells
 				return TimeSpan.FromSeconds( (3 + (int)Circle) * CastDelaySecondsPerTick );
 			}
 		}
-    }
-
-
-    public abstract class TargetedMagerySpell : MagerySpell
-    {
-        private TargetFlags target_flags;
-
-        protected Mobile target;
-
-        public TargetedMagerySpell(Mobile caster, Item scroll, SpellInfo info, TargetFlags flags)
-            : base(caster, scroll, info)
-        {
-            target_flags = flags;
-        }
-
-
-
-        public override bool PrepareCast()
-        {
-            Caster.Target = new InternalTarget(this);
-            return false;
-        }
-
-
-        public void Target(Mobile m)
-        {
-            target = m;
-
-            Cast();
-        }
-
-
-
-        public class InternalTarget : Target
-        {
-            private TargetedMagerySpell m_Owner;
-
-            public InternalTarget(TargetedMagerySpell owner) : base(Core.ML ? 10 : 12, false, owner.target_flags)
-            {
-                m_Owner = owner;
-            }
-
-            protected override void OnTarget(Mobile from, object o)
-            {
-                if (o is Mobile)
-                {
-                    m_Owner.Target((Mobile)o);
-                }
-            }
-        }
-    }
+	}
 }

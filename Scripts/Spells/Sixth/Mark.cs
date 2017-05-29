@@ -19,7 +19,29 @@ namespace Server.Spells.Sixth
 
 		public override SpellCircle Circle { get { return SpellCircle.Sixth; } }
 
-		public MarkSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is RecallRune)
+                {
+                    Target((RecallRune)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("That item is not a recall rune");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public MarkSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -63,6 +85,39 @@ namespace Server.Spells.Sixth
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private MarkSpell m_Owner;
+
+            public InternalSphereTarget(MarkSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.None)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is RecallRune)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("That item is not a recall rune");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		private class InternalTarget : Target
 		{

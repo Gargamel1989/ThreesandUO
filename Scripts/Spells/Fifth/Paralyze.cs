@@ -19,7 +19,28 @@ namespace Server.Spells.Fifth
 
 		public override SpellCircle Circle { get { return SpellCircle.Fifth; } }
 
-		public ParalyzeSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is Mobile)
+                {
+                    Target((Mobile)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public ParalyzeSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -34,10 +55,11 @@ namespace Server.Spells.Fifth
 			{
 				Caster.SendLocalizedMessage( 500237 ); // Target can not be seen.
 			}
-			else if ( Core.AOS && (m.Frozen || m.Paralyzed || (m.Spell != null && m.Spell.IsCasting && !(m.Spell is PaladinSpell))) )
-			{
-				Caster.SendLocalizedMessage( 1061923 ); // The target is already frozen.
-			}
+            else if (!CheckLineOfSight(m))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( CheckHSequence( m ) )
 			{
 				SpellHelper.Turn( Caster, m );
@@ -78,11 +100,9 @@ namespace Server.Spells.Fifth
 				}
 
 				m.Paralyze( TimeSpan.FromSeconds( duration ) );
-
+	
 				m.PlaySound( 0x204 );
 				m.FixedEffect( 0x376A, 6, 1 );
-
-				HarmfulSpell( m );
 			}
 
 			FinishSequence();
@@ -108,5 +128,38 @@ namespace Server.Spells.Fifth
 				m_Owner.FinishSequence();
 			}
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private ParalyzeSpell m_Owner;
+
+            public InternalSphereTarget(ParalyzeSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Mobile)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 	}
 }
