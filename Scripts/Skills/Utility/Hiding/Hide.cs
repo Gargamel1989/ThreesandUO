@@ -1,10 +1,15 @@
 ﻿using System;
 using Server;
 using Server.Network;
-using Scripts.Skills.Utility.Hiding;
 
-namespace Server.Hiding.hide
+namespace Scripts.Skills.Utility.Hiding
 {
+    public enum HidingState
+    {
+        None = 0,
+        TryingToHide = 1,    // We are in the process of hiding (that is, waiting GetHideTime()). Hiding may be interupted in this state.
+        Sequencing = 2
+    }
     public abstract class Hide : IHiding
     {
         private HidingState m_state;
@@ -25,13 +30,13 @@ namespace Server.Hiding.hide
             Console.WriteLine("hide.TryToHide() hide.cs");
             m_StartHideTimer = Core.TickCount;
 
-            
+            /*
             //This crashes when I use this.
-            if (m_hider.Hiding is Hide && ((Hide)m_hider.Hiding).State == HidingState.TryingToHide)
+            if (((Hide)m_hider.Hiding).State == HidingState.TryingToHide)
             {
                 //Distrub code
             }
-            
+            */
 
             if (m_hider.Hiding != null && m_hider.Hiding.IsHiding)
             {
