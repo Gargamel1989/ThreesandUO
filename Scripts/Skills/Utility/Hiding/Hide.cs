@@ -22,22 +22,14 @@ namespace Server.Hiding.hide
 
         public bool TryToHide()
         {
-            Console.WriteLine("hide.TryToHide() hide.cs");
             m_StartHideTimer = Core.TickCount;
-
             
             //This crashes when I use this.
             if (m_hider.Hiding is Hide && ((Hide)m_hider.Hiding).State == HidingState.TryingToHide)
             {
                 //Distrub code
-
-            }
-            
-
-            if (m_hider.Hiding != null && m_hider.Hiding.IsHiding)
-            {
                 Console.WriteLine("Disturb new hiding request");
-                Disturb(DisturbType.NewHide);
+                ((Hide)m_hider.Hiding).Disturb(DisturbType.NewHide);
             }
 
             if (!m_hider.CheckAlive())
@@ -48,13 +40,14 @@ namespace Server.Hiding.hide
             {
                 m_hider.SendMessage("You cannot hide while frozen.");
             }
+            /*
             else if (Core.TickCount - m_hider.NextHideTime < 0)
             {
                 m_hider.SendMessage("You have not yet recoverd from hiding");
             }
+            */
             else if(m_hider.Hiding == null && m_hider.CheckHiding(this) && CheckHiding() && m_hider.Region.OnBeginHiding(m_hider, this))
             {
-                Console.WriteLine("HideState.TryToHide hide.cs");
                 m_state = HidingState.TryingToHide;
                 m_hider.Hiding = this;
                 TimeSpan HideDelay = this.GetHideDelay();
@@ -65,12 +58,10 @@ namespace Server.Hiding.hide
                 //OnBeginHide();
 
                 if (HideDelay > TimeSpan.Zero){
-                    Console.WriteLine("HideState.TryToHide m_HiderTimer.Start() hide.cs");
                     m_HidingTimer.Start();
                 }
                 else{
                     m_HidingTimer.Tick();
-                    Console.WriteLine("Hidedelay = zero");
                 }
 
                 return true;
@@ -99,10 +90,7 @@ namespace Server.Hiding.hide
             {
                 m_state = HidingState.None;
                 m_hider.Hiding = null;
-
-                if (type == DisturbType.NewHide)
-                    m_hider.SendMessage("New Hiding request");
-
+                
                 OnDisturb(type, true);
 
                 if (m_HidingTimer != null)
@@ -119,7 +107,6 @@ namespace Server.Hiding.hide
 
             if (m_hider.Hiding == this)
             {
-                Console.WriteLine("setting m_hider.hiding = null");
                 m_hider.Hiding = null;
             }
 
@@ -199,17 +186,15 @@ namespace Server.Hiding.hide
 
             protected override void OnTick()
             {
-                Console.WriteLine("inside HidingTimer: OnTick() startfunction: hide.cs");
                 
                 if (m_Hiding == null && m_Hiding.m_hider == null)
                 {
-                    Console.WriteLine("inside HidingTimer: m_Hiding == null && m_Hiding.m_hider == null startIf: hide.cs");
+                    
                     return;
                 }
                 
                 else if (m_Hiding.m_state == HidingState.TryingToHide ) //&& m_Hiding.m_hider.UseSkill(SkillName.Hiding))
                 {
-                    Console.WriteLine("inside HidingTimer: m_Hiding.m_state == HidingState.TryingToHid startIf: hide.cs");
                     m_Hiding.m_state = HidingState.Sequencing;
                     m_Hiding.m_HidingTimer = null;
                     m_Hiding.m_hider.OnHiding(m_Hiding);
@@ -220,15 +205,12 @@ namespace Server.Hiding.hide
                     m_Hiding.OnHide();
 
                     m_Hiding.m_HidingTimer = null;
-                    Console.WriteLine("inside HidingTimer: m_Hiding.m_state == HidingState.TryingToHid endIf: hide.cs");
                 }
-                Console.WriteLine("inside HidingTimer: OnTick() endfunction: hide.cs");
                 
             }
 
             public void Tick()
             {
-                Console.WriteLine("inside HidingTimer: Tick()Function: hide.cs");
                 OnTick();
             }
         }
