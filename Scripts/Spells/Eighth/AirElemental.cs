@@ -19,7 +19,66 @@ namespace Server.Spells.Eighth
 
 		public override SpellCircle Circle { get { return SpellCircle.Eighth; } }
 
-		public AirElementalSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is IPoint3D)
+                {
+                    Target((IPoint3D)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Invalid Target");
+                }
+            }
+            FinishSequence();
+        }
+
+        public void Target(IPoint3D p)
+        {
+            if (!Caster.CanSee(p))
+            {
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
+            }
+            else if (!CheckLineOfSight(p))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
+            else if (CheckSequence())
+            {
+                TimeSpan duration = TimeSpan.FromSeconds((2 * Caster.Skills.Magery.Fixed) / 5);
+
+                if (Core.AOS)
+                {
+                    SummonedAirElemental airElemental = new SummonedAirElemental();
+
+                    airElemental.MoveToWorld(new Point3D(p), Caster.Map );
+
+                    SpellHelper.Summon(airElemental, Caster, 0x217, duration, false, false);
+                }
+                else
+                {
+                    AirElemental airElemental = new AirElemental();
+
+                    airElemental.MoveToWorld(new Point3D(p), Caster.Map);
+
+                    SpellHelper.Summon(airElemental, Caster, 0x217, duration, false, false);
+                }
+
+
+            }
+
+            FinishSequence();
+        }
+
+	    public AirElementalSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -51,5 +110,38 @@ namespace Server.Spells.Eighth
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private AirElementalSpell m_Owner;
+
+            public InternalSphereTarget(AirElementalSpell owner)
+                : base(8, true, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is IPoint3D)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 	}
 }

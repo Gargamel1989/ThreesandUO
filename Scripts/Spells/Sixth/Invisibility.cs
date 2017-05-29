@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections;
 using Server;
 using Server.Targeting;
 using Server.Items;
@@ -18,19 +18,29 @@ namespace Server.Spells.Sixth
 
 		public override SpellCircle Circle { get { return SpellCircle.Sixth; } }
 
-		public InvisibilitySpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
-		{
-		}
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
 
-		public override bool CheckCast()
-		{
-			if ( Engines.ConPVP.DuelContext.CheckSuddenDeath( Caster ) )
-			{
-				Caster.SendMessage( 0x22, "You cannot cast this spell when in sudden death." );
-				return false;
-			}
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is Mobile)
+                {
+                    Target((Mobile)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+            FinishSequence();
+        }
 
-			return base.CheckCast();
+	    public InvisibilitySpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+		{
 		}
 
 		public override void OnCast()
@@ -44,6 +54,11 @@ namespace Server.Spells.Sixth
 			{
 				Caster.SendLocalizedMessage( 500237 ); // Target can not be seen.
 			}
+            else if (!CheckLineOfSight(m))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( m is Mobiles.BaseVendor || m is Mobiles.PlayerVendor || m is Mobiles.PlayerBarkeeper || m.AccessLevel > Caster.AccessLevel )
 			{
 				Caster.SendLocalizedMessage( 501857 ); // This spell won't work on that!
@@ -76,17 +91,16 @@ namespace Server.Spells.Sixth
 			FinishSequence();
 		}
 
-		private static Dictionary<Mobile, Timer> m_Table = new Dictionary<Mobile, Timer>();
+		private static Hashtable m_Table = new Hashtable();
 
 		public static bool HasTimer( Mobile m )
 		{
-			return m_Table.ContainsKey(m);
+			return m_Table[m] != null;
 		}
 
 		public static void RemoveTimer( Mobile m )
 		{
-			Timer t = null;
-			m_Table.TryGetValue(m, out t);
+			Timer t = (Timer)m_Table[m];
 
 			if ( t != null )
 			{
@@ -107,10 +121,44 @@ namespace Server.Spells.Sixth
 
 			protected override void OnTick()
 			{
+				if ( !m_Mobile.Hidden )
 				m_Mobile.RevealingAction();
 				RemoveTimer( m_Mobile );
 			}
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private InvisibilitySpell m_Owner;
+
+            public InternalSphereTarget(InvisibilitySpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.Beneficial)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Mobile)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		public class InternalTarget : Target
 		{

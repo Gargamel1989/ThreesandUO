@@ -18,7 +18,28 @@ namespace Server.Spells.Third
 
 		public override SpellCircle Circle { get { return SpellCircle.Third; } }
 
-		public MagicLockSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is LockableContainer)
+                {
+                    Target((LockableContainer)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("You can't lock this");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public MagicLockSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -34,6 +55,11 @@ namespace Server.Spells.Third
 				// You cannot cast this on a locked down item.
 				Caster.LocalOverheadMessage( MessageType.Regular, 0x22, 501761 );
 			}
+            else if (!CheckLineOfSight(targ))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( targ.Locked || targ.LockLevel == 0 || targ is ParagonChest )
 			{
 				// Target must be an unlocked chest.
@@ -60,6 +86,39 @@ namespace Server.Spells.Third
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private MagicLockSpell m_Owner;
+
+            public InternalSphereTarget(MagicLockSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.None)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is LockableContainer)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("You can't lock this");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		private class InternalTarget : Target
 		{

@@ -20,7 +20,28 @@ namespace Server.Spells.Fourth
 
 		public override SpellCircle Circle { get { return SpellCircle.Fourth; } }
 
-		public ArchCureSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is IPoint3D)
+                {
+                    Target((IPoint3D)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public ArchCureSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -29,7 +50,7 @@ namespace Server.Spells.Fourth
 			Caster.Target = new InternalTarget( this );
 		}
 
-		// Arch cure is now 1/4th of a second faster
+		// Archcure is now 1/4th of a second faster
 		public override TimeSpan CastDelayBase{ get{ return base.CastDelayBase - TimeSpan.FromSeconds( 0.25 ); } }
 
 		public void Target( IPoint3D p )
@@ -38,6 +59,11 @@ namespace Server.Spells.Fourth
 			{
 				Caster.SendLocalizedMessage( 500237 ); // Target can not be seen.
 			}
+            else if (!CheckLineOfSight(p))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( CheckSequence() )
 			{
 				SpellHelper.Turn( Caster, p );
@@ -47,24 +73,28 @@ namespace Server.Spells.Fourth
 				List<Mobile> targets = new List<Mobile>();
 
 				Map map = Caster.Map;
-				Mobile directTarget = p as Mobile;
+				Mobile m_directtarget = p as Mobile;
 
 				if ( map != null )
 				{
-					bool feluccaRules = ( map.Rules == MapRules.FeluccaRules );
-
-					// You can target any living mobile directly, beneficial checks apply
-					if ( directTarget != null && Caster.CanBeBeneficial( directTarget, false ) )
-						targets.Add( directTarget );
+					//you can target directly someone/something and become criminal if it's a criminal action
+					 if ( m_directtarget != null )
+						targets.Add ( m_directtarget );
 
 					IPooledEnumerable eable = map.GetMobilesInRange( new Point3D( p ), 2 );
 
 					foreach ( Mobile m in eable )
 					{
-						if ( m == directTarget )
-							continue;
+						// Archcure area effect won't cure aggressors or victims, nor murderers, criminals or monsters 
+						// plus Arch Cure Area will NEVER work on summons/pets if you are in Felucca facet
+						// red players can cure only themselves and guildies with arch cure area.
 
-						if ( AreaCanTarget( m, feluccaRules ) )
+						if ( map.Rules == MapRules.FeluccaRules )
+							{
+								if ( Caster.CanBeBeneficial( m, false ) && ( !Core.AOS || !IsAggressor( m ) && !IsAggressed( m ) && (( IsInnocentTo ( Caster, m ) && IsInnocentTo ( m, Caster ) ) || ( IsAllyTo ( Caster, m ) )) && m != m_directtarget && m is PlayerMobile || m == Caster && m != m_directtarget ))
+									targets.Add( m );
+							}
+						else if ( Caster.CanBeBeneficial( m, false ) && ( !Core.AOS || !IsAggressor( m ) && !IsAggressed( m ) && (( IsInnocentTo ( Caster, m ) && IsInnocentTo ( m, Caster ) ) || ( IsAllyTo ( Caster, m ) )) && m != m_directtarget || m == Caster && m != m_directtarget ))
 							targets.Add( m );
 					}
 
@@ -107,31 +137,6 @@ namespace Server.Spells.Fourth
 			FinishSequence();
 		}
 
-		private bool AreaCanTarget( Mobile target, bool feluccaRules )
-		{
-			/* Arch cure area effect won't cure aggressors, victims, murderers, criminals or monsters.
-			 * In Felucca, it will also not cure summons and pets.
-			 * For red players it will only cure themselves and guild members.
-			 */
-
-			if ( !Caster.CanBeBeneficial( target, false ) )
-				return false;
-
-			if ( Core.AOS && target != Caster )
-			{
-				if ( IsAggressor( target ) || IsAggressed( target ) )
-					return false;
-
-				if ( ( !IsInnocentTo( Caster, target ) || !IsInnocentTo( target, Caster ) ) && !IsAllyTo( Caster, target ) )
-					return false;
-
-				if ( feluccaRules && !( target is PlayerMobile ) )
-					return false;
-			}
-
-			return true;
-		}
-
 		private bool IsAggressor( Mobile m )
 		{
 			foreach ( AggressorInfo info in Caster.Aggressors )
@@ -158,11 +163,44 @@ namespace Server.Spells.Fourth
 		{
 			return ( Notoriety.Compute( from, (Mobile)to ) == Notoriety.Innocent );
 		}
-
+		
 		private static bool IsAllyTo( Mobile from, Mobile to )
 		{
 			return ( Notoriety.Compute( from, (Mobile)to ) == Notoriety.Ally );
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private ArchCureSpell m_Owner;
+
+            public InternalSphereTarget(ArchCureSpell owner)
+                : base(Core.ML ? 10 : 12, true, TargetFlags.Beneficial)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is IPoint3D)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		private class InternalTarget : Target
 		{

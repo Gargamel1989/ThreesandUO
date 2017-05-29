@@ -18,11 +18,82 @@ namespace Server.Spells.First
 
 		public override SpellCircle Circle { get { return SpellCircle.First; } }
 
-		public ReactiveArmorSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is Mobile)
+                {
+                    Target((Mobile)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public ReactiveArmorSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
-		public override bool CheckCast()
+        public void Target(Mobile m)
+        {
+            if (!Caster.CanSee(m))
+            {
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
+            }
+            else if (!CheckLineOfSight(m))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
+            else if (CheckSequence())
+            {
+                //NOT AOS
+
+                if (Caster.MeleeDamageAbsorb > 0)
+                {
+                    Caster.SendLocalizedMessage(1005559); // This spell is already in effect.
+                }
+                else if (!Caster.CanBeginAction(typeof(DefensiveSpell)))
+                {
+                    Caster.SendLocalizedMessage(1005385); // The spell will not adhere to you at this time.
+                }
+                else if (CheckSequence())
+                {
+                    if (Caster.BeginAction(typeof(DefensiveSpell)))
+                    {
+                        int value = (int)(Caster.Skills[SkillName.Magery].Value + Caster.Skills[SkillName.Meditation].Value + Caster.Skills[SkillName.Inscribe].Value);
+                        value /= 3;
+
+                        if (value < 0)
+                            value = 1;
+                        else if (value > 75)
+                            value = 75;
+
+                        Caster.MeleeDamageAbsorb = value;
+
+                        Caster.FixedParticles(0x376A, 9, 32, 5008, EffectLayer.Waist);
+                        Caster.PlaySound(0x1F2);
+                    }
+                    else
+                    {
+                        Caster.SendLocalizedMessage(1005385); // The spell will not adhere to you at this time.
+                    }
+                }
+            }
+
+            FinishSequence();
+        }
+
+	    public override bool CheckCast()
 		{
 			if ( Core.AOS )
 				return true;
@@ -138,21 +209,54 @@ namespace Server.Spells.First
 			}
 		}
 
-		public static void EndArmor( Mobile m )
-		{
-			if ( m_Table.Contains( m ) )
-			{
-				ResistanceMod[] mods = (ResistanceMod[]) m_Table[ m ];
+        public static void EndArmor(Mobile m)
+        {
+            if (m_Table.Contains(m))
+            {
+                ResistanceMod[] mods = (ResistanceMod[])m_Table[m];
 
-				if ( mods != null )
-				{
-					for ( int i = 0; i < mods.Length; ++i )
-						m.RemoveResistanceMod( mods[ i ] );
-				}
+                if (mods != null)
+                {
+                    for (int i = 0; i < mods.Length; ++i)
+                        m.RemoveResistanceMod(mods[i]);
+                }
 
-				m_Table.Remove( m );
-				BuffInfo.RemoveBuff( m, BuffIcon.ReactiveArmor );
-			}
-		}
+                m_Table.Remove(m);
+                BuffInfo.RemoveBuff(m, BuffIcon.ReactiveArmor);
+            }
+        }
+
+        private class InternalSphereTarget : Target
+        {
+            private ReactiveArmorSpell m_Owner;
+
+            public InternalSphereTarget(ReactiveArmorSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.Beneficial)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Mobile)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 	}
 }

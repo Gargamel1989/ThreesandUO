@@ -18,7 +18,28 @@ namespace Server.Spells.Fifth
 
 		public override SpellCircle Circle { get { return SpellCircle.Fifth; } }
 
-		public MindBlastSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is Mobile)
+                {
+                    Target((Mobile)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public MindBlastSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 			if ( Core.AOS )
 				m_Info.LeftHandEffect = m_Info.RightHandEffect = 9002;
@@ -50,10 +71,15 @@ namespace Server.Spells.Fifth
 
 		public void Target( Mobile m )
 		{
-			if ( !Caster.CanSee( m ) )
-			{
-				Caster.SendLocalizedMessage( 500237 ); // Target can not be seen.
-			}
+            if (!Caster.CanSee(m))
+            {
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
+            }
+            else if (!CheckLineOfSight(m))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( Core.AOS )
 			{
 				if ( Caster.CanBeHarmful( m ) && CheckSequence() )
@@ -104,8 +130,8 @@ namespace Server.Spells.Fifth
 				if ( lowestStat > 150 ) 
 					lowestStat = 150;
 
-				double damage = GetDamageScalar(m)*(highestStat - lowestStat) / 2; // Many users prefer 3 or 4
-				
+				int damage = (highestStat - lowestStat) / 4;//less damage
+
 				if ( damage > 45 )
 					damage = 45;
 
@@ -125,6 +151,39 @@ namespace Server.Spells.Fifth
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private MindBlastSpell m_Owner;
+
+            public InternalSphereTarget(MindBlastSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Mobile)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		public override double GetSlayerDamageScalar( Mobile target )
 		{

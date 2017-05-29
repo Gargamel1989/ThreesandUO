@@ -22,7 +22,28 @@ namespace Server.Spells.Fourth
 
 		public override SpellCircle Circle { get { return SpellCircle.Fourth; } }
 
-		public FireFieldSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is IPoint3D)
+                {
+                    Target((IPoint3D)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public FireFieldSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -37,6 +58,11 @@ namespace Server.Spells.Fourth
 			{
 				Caster.SendLocalizedMessage( 500237 ); // Target can not be seen.
 			}
+            else if (!CheckLineOfSight(p))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( SpellHelper.CheckTown( p, Caster ) && CheckSequence() )
 			{
 				SpellHelper.Turn( Caster, p );
@@ -89,6 +115,39 @@ namespace Server.Spells.Fourth
 			FinishSequence();
 		}
 
+        private class InternalSphereTarget : Target
+        {
+            private FireFieldSpell m_Owner;
+
+            public InternalSphereTarget(FireFieldSpell owner)
+                : base(Core.ML ? 10 : 12, true, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is IPoint3D)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
+
 		[DispellableField]
 		public class FireFieldItem : Item
 		{
@@ -118,7 +177,7 @@ namespace Server.Spells.Fourth
 
 				m_Damage = damage;
 
-				m_End = DateTime.UtcNow + duration;
+				m_End = DateTime.Now + duration;
 
 				m_Timer = new InternalTimer( this, TimeSpan.FromSeconds( Math.Abs( val ) * 0.2 ), caster.InLOS( this ), canFit );
 				m_Timer.Start();
@@ -201,9 +260,6 @@ namespace Server.Spells.Fourth
 
 					AOS.Damage( m, m_Caster, damage, 0, 100, 0, 0, 0 );
 					m.PlaySound( 0x208 );
-
-					if ( m is BaseCreature )
-						((BaseCreature) m).OnHarmfulSpell( m_Caster );
 				}
 
 				return true;
@@ -243,7 +299,7 @@ namespace Server.Spells.Fourth
 							Effects.SendLocationParticles( EffectItem.Create( m_Item.Location, m_Item.Map, EffectItem.DefaultDuration ), 0x376A, 9, 10, 5029 );
 						}
 					}
-					else if ( DateTime.UtcNow > m_Item.m_End )
+					else if ( DateTime.Now > m_Item.m_End )
 					{
 						m_Item.Delete();
 						Stop();
@@ -281,9 +337,6 @@ namespace Server.Spells.Fourth
 
 								AOS.Damage( m, caster, damage, 0, 100, 0, 0, 0 );
 								m.PlaySound( 0x208 );
-
-								if ( m is BaseCreature )
-									((BaseCreature) m).OnHarmfulSpell( caster );
 							}
 						}
 					}

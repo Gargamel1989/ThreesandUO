@@ -9,6 +9,8 @@ namespace Server.Spells.Eighth
 {
 	public class SummonDaemonSpell : MagerySpell
 	{
+		private BaseCreature m_Daemon = new SummonedDaemon();
+		
 		private static SpellInfo m_Info = new SpellInfo(
 				"Summon Daemon", "Kal Vas Xen Corp",
 				269,
@@ -22,9 +24,49 @@ namespace Server.Spells.Eighth
 
 		public override SpellCircle Circle { get { return SpellCircle.Eighth; } }
 
-		public SummonDaemonSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is IPoint3D)
+                {
+                    Target((IPoint3D)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Invalid Target");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public SummonDaemonSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
+
+        public void Target(IPoint3D p)
+        {
+            if (!Caster.CanSee(p))
+            {
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
+            }
+            else if (!CheckLineOfSight(p))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
+            else if (CheckSequence())
+            {
+            }
+
+            FinishSequence();
+        }
 
 		public override bool CheckCast()
 		{
@@ -46,9 +88,8 @@ namespace Server.Spells.Eighth
 			{	
 				TimeSpan duration = TimeSpan.FromSeconds( (2 * Caster.Skills.Magery.Fixed) / 5 );
 
-				if ( Core.AOS )  /* Why two diff daemons? TODO: solve this */
+				if ( Core.AOS )
 				{
-					BaseCreature m_Daemon = new SummonedDaemon();
 					SpellHelper.Summon( m_Daemon, Caster, 0x216, duration, false, false );
 					m_Daemon.FixedParticles(0x3728, 8, 20, 5042, EffectLayer.Head );
 				}
@@ -58,5 +99,38 @@ namespace Server.Spells.Eighth
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private SummonDaemonSpell m_Owner;
+
+            public InternalSphereTarget(SummonDaemonSpell owner)
+                : base(8, true, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is IPoint3D)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 	}
 }

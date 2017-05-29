@@ -16,19 +16,29 @@ namespace Server.Spells.Third
 
 		public override SpellCircle Circle { get { return SpellCircle.Third; } }
 
-		public BlessSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
-		{
-		}
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
 
-		public override bool CheckCast()
-		{
-			if ( Engines.ConPVP.DuelContext.CheckSuddenDeath( Caster ) )
-			{
-				Caster.SendMessage( 0x22, "You cannot cast this spell when in sudden death." );
-				return false;
-			}
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is Mobile)
+                {
+                    Target((Mobile)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+            FinishSequence();
+        }
 
-			return base.CheckCast();
+	    public BlessSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+		{
 		}
 
 		public override void OnCast()
@@ -42,6 +52,11 @@ namespace Server.Spells.Third
 			{
 				Caster.SendLocalizedMessage( 500237 ); // Target can not be seen.
 			}
+            else if (!CheckLineOfSight(m))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( CheckBSequence( m ) )
 			{
 				SpellHelper.Turn( Caster, m );
@@ -63,6 +78,39 @@ namespace Server.Spells.Third
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private BlessSpell m_Owner;
+
+            public InternalSphereTarget(BlessSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.Beneficial)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Mobile)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		private class InternalTarget : Target
 		{

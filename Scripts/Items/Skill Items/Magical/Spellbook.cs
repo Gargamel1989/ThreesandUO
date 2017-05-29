@@ -136,8 +136,7 @@ namespace Server.Items
 	
 					if ( spell != null)
                     {
-                        if (spell.PrepareCast())
-                            spell.Cast();
+                       spell.Cast();
                     }
                     else
 						from.SendLocalizedMessage( 502345 ); // This spell has been temporarily disabled.
