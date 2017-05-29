@@ -89,6 +89,14 @@ namespace Server
 		bool OnCastInTown( Region r );
 	}
 
+    public interface IHiding
+    {
+        bool IsHiding { get; }
+        void OnHiderHurt();
+        void OnHiderKilled();
+        void OnConnectionChanged();
+    }
+
 	public interface IParty
 	{
 		void OnStamChanged( Mobile m );

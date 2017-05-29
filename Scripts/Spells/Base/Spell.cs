@@ -494,7 +494,9 @@ namespace Server.Spells
 			m_StartCastTime = Core.TickCount;
 
 			if ( Core.AOS && m_Caster.Spell is Spell && ((Spell)m_Caster.Spell).State == SpellState.Sequencing )
-				((Spell)m_Caster.Spell).Disturb( DisturbType.NewCast );
+            {
+                ((Spell)m_Caster.Spell).Disturb(DisturbType.NewCast);
+            }
 
 			if ( !m_Caster.CheckAlive() )
 			{
@@ -911,7 +913,7 @@ namespace Server.Spells
 
 			protected override void OnTick()
 			{
-				if ( m_Spell == null || m_Spell.m_Caster == null )
+                if ( m_Spell == null || m_Spell.m_Caster == null )
 				{
 					return;
 				}
