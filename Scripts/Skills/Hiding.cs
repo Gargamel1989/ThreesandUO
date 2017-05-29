@@ -43,8 +43,6 @@ namespace Server.SkillHandlers
 
             protected override void OnTick()
             {
-                counter++;
-                m.Emote("Hiding iets: counter is: {0}", Convert.ToString(counter));
                 if (m == null || m.Deleted)
                 {
                     this.Stop();
@@ -169,24 +167,27 @@ namespace Server.SkillHandlers
 
         public static TimeSpan OnUse( Mobile m )
 		{
-            Console.WriteLine("Start hiding");
             
             Hide hide = new HidingHide(m);
-            
-            Console.WriteLine("Hide.TryToHide() = {0}", Convert.ToString(hide.TryToHide()));
+
+            hide.TryToHide();
 
             return TimeSpan.FromSeconds(0.25);
 		}
 
         private class HidingHide : Hide
         {
+            private Mobile m;
             public HidingHide( Mobile m ) : base( m )
             {
+                this.m = m;
             }
 
             public override void OnHide()
             {
-                Console.WriteLine("OnHide Hiding.cs");
+                m.Hidden = true;
+                m.Warmode = false;
+                m.LocalOverheadMessage(MessageType.Regular, 0x1F4, 501240); // You have hidden yourself well.               
                 FinishSequence();
             }
 
