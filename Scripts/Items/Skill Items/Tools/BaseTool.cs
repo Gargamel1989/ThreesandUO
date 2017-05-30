@@ -194,6 +194,16 @@ namespace Server.Items
 			return quality;
 		}
 
-		#endregion
-	}
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            Quality = (ToolQuality)quality;
+
+            if (makersMark)
+                Crafter = from;
+
+            return quality;
+        }
+
+        #endregion
+    }
 }

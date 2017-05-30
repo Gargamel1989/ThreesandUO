@@ -396,11 +396,49 @@ namespace Server.Items
 			return 1;
 		}
 
-		#endregion
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            // TODO: Adapt to use typeRes2
+            if (from.CheckSkill(SkillName.Tinkering, -5.0, 15.0))
+            {
+                from.SendLocalizedMessage(500636); // Your tinker skill was sufficient to make the item lockable.
 
-		#region IShipwreckedItem Members
+                Key key = new Key(KeyType.Copper, Key.RandomValue());
 
-		private bool m_IsShipwreckedItem;
+                KeyValue = key.KeyValue;
+                DropItem(key);
+
+                double tinkering = from.Skills[SkillName.Tinkering].Value;
+                int level = (int)(tinkering * 0.8);
+
+                RequiredSkill = level - 4;
+                LockLevel = level - 14;
+                MaxLockLevel = level + 35;
+
+                if (LockLevel == 0)
+                    LockLevel = -1;
+                else if (LockLevel > 95)
+                    LockLevel = 95;
+
+                if (RequiredSkill > 95)
+                    RequiredSkill = 95;
+
+                if (MaxLockLevel > 95)
+                    MaxLockLevel = 95;
+            }
+            else
+            {
+                from.SendLocalizedMessage(500637); // Your tinker skill was insufficient to make the item lockable.
+            }
+
+            return 1;
+        }
+
+        #endregion
+
+        #region IShipwreckedItem Members
+
+        private bool m_IsShipwreckedItem;
 
 		[CommandProperty( AccessLevel.GameMaster )]
 		public bool IsShipwreckedItem

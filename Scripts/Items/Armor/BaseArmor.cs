@@ -1651,6 +1651,58 @@ namespace Server.Items
 			return quality;
 		}
 
-		#endregion
-	}
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            // TODO: Adapt to use typeRes2
+            Quality = (ArmorQuality)quality;
+
+            if (makersMark)
+                Crafter = from;
+
+            Type resourceType = typeRes;
+
+            if (resourceType == null)
+                resourceType = craftItem.Resources.GetAt(0).ItemType;
+
+            Resource = CraftResources.GetFromType(resourceType);
+            PlayerConstructed = true;
+
+            CraftContext context = craftSystem.GetContext(from);
+
+            if (context != null && context.DoNotColor)
+                Hue = 0;
+
+            if (Quality == ArmorQuality.Exceptional)
+            {
+                if (!(Core.ML && this is BaseShield))       // Guessed Core.ML removed exceptional resist bonuses from crafted shields
+                    DistributeBonuses((tool is BaseRunicTool ? 6 : Core.SE ? 15 : 14)); // Not sure since when, but right now 15 points are added, not 14.
+
+                if (Core.ML && !(this is BaseShield))
+                {
+                    int bonus = (int)(from.Skills.ArmsLore.Value / 20);
+
+                    for (int i = 0; i < bonus; i++)
+                    {
+                        switch (Utility.Random(5))
+                        {
+                            case 0: m_PhysicalBonus++; break;
+                            case 1: m_FireBonus++; break;
+                            case 2: m_ColdBonus++; break;
+                            case 3: m_EnergyBonus++; break;
+                            case 4: m_PoisonBonus++; break;
+                        }
+                    }
+
+                    from.CheckSkill(SkillName.ArmsLore, 0, 100);
+                }
+            }
+
+            if (Core.AOS && tool is BaseRunicTool)
+                ((BaseRunicTool)tool).ApplyAttributesTo(this);
+
+            return quality;
+        }
+
+        #endregion
+    }
 }

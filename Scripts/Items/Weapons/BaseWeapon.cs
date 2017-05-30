@@ -3611,10 +3611,138 @@ namespace Server.Items
 			return quality;
 		}
 
-		#endregion
-	}
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            Quality = (WeaponQuality)quality;
 
-	public enum CheckSlayerResult
+            if (makersMark)
+                Crafter = from;
+
+            PlayerConstructed = true;
+
+            Type resourceType = typeRes;
+
+            if (resourceType == null)
+                resourceType = craftItem.Resources.GetAt(0).ItemType;
+
+            if (Core.AOS)
+            {
+                Resource = CraftResources.GetFromType(resourceType);
+
+                CraftContext context = craftSystem.GetContext(from);
+
+                if (context != null && context.DoNotColor)
+                    Hue = 0;
+
+                if (tool is BaseRunicTool)
+                    ((BaseRunicTool)tool).ApplyAttributesTo(this);
+
+                if (Quality == WeaponQuality.Exceptional)
+                {
+                    if (Attributes.WeaponDamage > 35)
+                        Attributes.WeaponDamage -= 20;
+                    else
+                        Attributes.WeaponDamage = 15;
+
+                    if (Core.ML)
+                    {
+                        Attributes.WeaponDamage += (int)(from.Skills.ArmsLore.Value / 20);
+
+                        if (Attributes.WeaponDamage > 50)
+                            Attributes.WeaponDamage = 50;
+
+                        from.CheckSkill(SkillName.ArmsLore, 0, 100);
+                    }
+                }
+            }
+            else if (tool is BaseRunicTool)
+            {
+                CraftResource thisResource = CraftResources.GetFromType(resourceType);
+
+                if (thisResource == ((BaseRunicTool)tool).Resource)
+                {
+                    Resource = thisResource;
+
+                    CraftContext context = craftSystem.GetContext(from);
+
+                    if (context != null && context.DoNotColor)
+                        Hue = 0;
+
+                    switch (thisResource)
+                    {
+                        case CraftResource.DullCopper:
+                            {
+                                Identified = true;
+                                DurabilityLevel = WeaponDurabilityLevel.Durable;
+                                AccuracyLevel = WeaponAccuracyLevel.Accurate;
+                                break;
+                            }
+                        case CraftResource.ShadowIron:
+                            {
+                                Identified = true;
+                                DurabilityLevel = WeaponDurabilityLevel.Durable;
+                                DamageLevel = WeaponDamageLevel.Ruin;
+                                break;
+                            }
+                        case CraftResource.Copper:
+                            {
+                                Identified = true;
+                                DurabilityLevel = WeaponDurabilityLevel.Fortified;
+                                DamageLevel = WeaponDamageLevel.Ruin;
+                                AccuracyLevel = WeaponAccuracyLevel.Surpassingly;
+                                break;
+                            }
+                        case CraftResource.Bronze:
+                            {
+                                Identified = true;
+                                DurabilityLevel = WeaponDurabilityLevel.Fortified;
+                                DamageLevel = WeaponDamageLevel.Might;
+                                AccuracyLevel = WeaponAccuracyLevel.Surpassingly;
+                                break;
+                            }
+                        case CraftResource.Gold:
+                            {
+                                Identified = true;
+                                DurabilityLevel = WeaponDurabilityLevel.Indestructible;
+                                DamageLevel = WeaponDamageLevel.Force;
+                                AccuracyLevel = WeaponAccuracyLevel.Eminently;
+                                break;
+                            }
+                        case CraftResource.Agapite:
+                            {
+                                Identified = true;
+                                DurabilityLevel = WeaponDurabilityLevel.Indestructible;
+                                DamageLevel = WeaponDamageLevel.Power;
+                                AccuracyLevel = WeaponAccuracyLevel.Eminently;
+                                break;
+                            }
+                        case CraftResource.Verite:
+                            {
+                                Identified = true;
+                                DurabilityLevel = WeaponDurabilityLevel.Indestructible;
+                                DamageLevel = WeaponDamageLevel.Power;
+                                AccuracyLevel = WeaponAccuracyLevel.Exceedingly;
+                                break;
+                            }
+                        case CraftResource.Valorite:
+                            {
+                                Identified = true;
+                                DurabilityLevel = WeaponDurabilityLevel.Indestructible;
+                                DamageLevel = WeaponDamageLevel.Vanq;
+                                AccuracyLevel = WeaponAccuracyLevel.Supremely;
+                                break;
+                            }
+                    }
+                }
+            }
+
+            return quality;
+        }
+
+        #endregion
+    }
+
+    public enum CheckSlayerResult
 	{
 		None,
 		Slayer,

@@ -415,6 +415,47 @@ namespace Server.Items
 			return 1;
 		}
 
-		#endregion
-	}
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            Type resourceType = typeRes;
+
+            if (resourceType == null)
+                resourceType = craftItem.Resources.GetAt(0).ItemType;
+
+            Resource = CraftResources.GetFromType(resourceType);
+
+            CraftContext context = craftSystem.GetContext(from);
+
+            if (context != null && context.DoNotColor)
+                Hue = 0;
+
+            if (1 < craftItem.Resources.Count)
+            {
+                resourceType = craftItem.Resources.GetAt(1).ItemType;
+
+                if (resourceType == typeof(StarSapphire))
+                    GemType = GemType.StarSapphire;
+                else if (resourceType == typeof(Emerald))
+                    GemType = GemType.Emerald;
+                else if (resourceType == typeof(Sapphire))
+                    GemType = GemType.Sapphire;
+                else if (resourceType == typeof(Ruby))
+                    GemType = GemType.Ruby;
+                else if (resourceType == typeof(Citrine))
+                    GemType = GemType.Citrine;
+                else if (resourceType == typeof(Amethyst))
+                    GemType = GemType.Amethyst;
+                else if (resourceType == typeof(Tourmaline))
+                    GemType = GemType.Tourmaline;
+                else if (resourceType == typeof(Amber))
+                    GemType = GemType.Amber;
+                else if (resourceType == typeof(Diamond))
+                    GemType = GemType.Diamond;
+            }
+
+            return 1;
+        }
+
+        #endregion
+    }
 }

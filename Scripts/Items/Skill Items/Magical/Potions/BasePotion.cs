@@ -270,6 +270,45 @@ namespace Server.Items
 			return 1;
 		}
 
-		#endregion
-	}
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            if (craftSystem is DefAlchemy)
+            {
+                Container pack = from.Backpack;
+
+                if (pack != null)
+                {
+                    if ((int)PotionEffect >= (int)PotionEffect.Invisibility)
+                        return 1;
+
+                    List<PotionKeg> kegs = pack.FindItemsByType<PotionKeg>();
+
+                    for (int i = 0; i < kegs.Count; ++i)
+                    {
+                        PotionKeg keg = kegs[i];
+
+                        if (keg == null)
+                            continue;
+
+                        if (keg.Held <= 0 || keg.Held >= 100)
+                            continue;
+
+                        if (keg.Type != PotionEffect)
+                            continue;
+
+                        ++keg.Held;
+
+                        Consume();
+                        from.AddToBackpack(new Bottle());
+
+                        return -1; // signal placed in keg
+                    }
+                }
+            }
+
+            return 1;
+        }
+
+        #endregion
+    }
 }
