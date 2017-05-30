@@ -136,8 +136,16 @@ namespace Server.Engines.Craft
 			{
 				// The item is in the list, try to create it
 				// Test code: items like sextant parts can be crafted either directly from ingots, or from different parts
-				realCraftItem.Craft( from, this, typeRes, typeRes2, tool );
-				//craftItem.Craft( from, this, typeRes, tool );
+                //Check if resourceType 2 is used.
+                if (typeRes2 == null)
+                {
+                    craftItem.Craft(from, this, typeRes, tool);
+                }
+                else
+                {
+                    realCraftItem.Craft(from, this, typeRes, typeRes2, tool);
+                }
+				
 			}
 		}
 
