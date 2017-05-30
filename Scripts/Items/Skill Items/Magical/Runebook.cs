@@ -477,8 +477,25 @@ namespace Server.Items
 			return quality;
 		}
 
-		#endregion
-	}
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            int charges = 5 + quality + (int)(from.Skills[SkillName.Inscribe].Value / 30);
+
+            if (charges > 10)
+                charges = 10;
+
+            MaxCharges = (Core.SE ? charges * 2 : charges);
+
+            if (makersMark)
+                Crafter = from;
+
+            m_Quality = (BookQuality)(quality - 1);
+
+            return quality;
+        }
+
+        #endregion
+    }
 
 	public class RunebookEntry
 	{

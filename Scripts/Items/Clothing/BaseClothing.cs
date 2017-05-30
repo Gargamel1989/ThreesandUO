@@ -1036,6 +1036,38 @@ namespace Server.Items
 			return quality;
 		}
 
-		#endregion
-	}
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            // TODO: Adapt to use typeRes2
+            Quality = (ClothingQuality)quality;
+
+            if (makersMark)
+                Crafter = from;
+
+            if (DefaultResource != CraftResource.None)
+            {
+                Type resourceType = typeRes;
+
+                if (resourceType == null)
+                    resourceType = craftItem.Resources.GetAt(0).ItemType;
+
+                Resource = CraftResources.GetFromType(resourceType);
+            }
+            else
+            {
+                Hue = resHue;
+            }
+
+            PlayerConstructed = true;
+
+            CraftContext context = craftSystem.GetContext(from);
+
+            if (context != null && context.DoNotColor)
+                Hue = 0;
+
+            return quality;
+        }
+
+        #endregion
+    }
 }

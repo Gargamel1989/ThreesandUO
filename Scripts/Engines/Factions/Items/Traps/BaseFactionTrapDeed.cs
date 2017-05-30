@@ -107,6 +107,14 @@ namespace Server.Factions
 			return 1;
 		}
 
-		#endregion
-	}
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            ItemID = 0x14F0;
+            Faction = Faction.Find(from);
+
+            return 1;
+        }
+
+        #endregion
+    }
 }

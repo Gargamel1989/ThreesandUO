@@ -100,9 +100,26 @@ namespace Server.Items
 
 			return quality;
 		}
-		#endregion
 
-		private class InternalTarget : Target
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            Type resourceType = typeRes;
+
+            if (resourceType == null)
+                resourceType = craftItem.Resources.GetAt(0).ItemType;
+
+            Resource = CraftResources.GetFromType(resourceType);
+
+            CraftContext context = craftSystem.GetContext(from);
+
+            if (context != null && context.DoNotColor)
+                Hue = 0;
+
+            return quality;
+        }
+        #endregion
+
+        private class InternalTarget : Target
 		{
 			private BaseAddonContainerDeed m_Deed;
 

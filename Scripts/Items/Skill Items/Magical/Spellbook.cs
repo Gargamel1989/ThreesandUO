@@ -909,5 +909,53 @@ namespace Server.Items
 
 			return quality;
 		}
-	}
+
+        public int OnCraft(int quality, bool makersMark, Mobile from, CraftSystem craftSystem, Type typeRes, BaseTool tool, CraftItem craftItem, int resHue)
+        {
+            int magery = from.Skills.Magery.BaseFixedPoint;
+
+            if (magery >= 800)
+            {
+                int[] propertyCounts;
+                int minIntensity;
+                int maxIntensity;
+
+                if (magery >= 1000)
+                {
+                    if (magery >= 1200)
+                        propertyCounts = m_LegendPropertyCounts;
+                    else if (magery >= 1100)
+                        propertyCounts = m_ElderPropertyCounts;
+                    else
+                        propertyCounts = m_GrandPropertyCounts;
+
+                    minIntensity = 55;
+                    maxIntensity = 75;
+                }
+                else if (magery >= 900)
+                {
+                    propertyCounts = m_MasterPropertyCounts;
+                    minIntensity = 25;
+                    maxIntensity = 45;
+                }
+                else
+                {
+                    propertyCounts = m_AdeptPropertyCounts;
+                    minIntensity = 0;
+                    maxIntensity = 15;
+                }
+
+                int propertyCount = propertyCounts[Utility.Random(propertyCounts.Length)];
+
+                BaseRunicTool.ApplyAttributesTo(this, true, 0, propertyCount, minIntensity, maxIntensity);
+            }
+
+            if (makersMark)
+                Crafter = from;
+
+            m_Quality = (BookQuality)(quality - 1);
+
+            return quality;
+        }
+    }
 }
