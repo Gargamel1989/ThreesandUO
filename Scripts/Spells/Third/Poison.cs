@@ -15,7 +15,28 @@ namespace Server.Spells.Third
 
 		public override SpellCircle Circle { get { return SpellCircle.Third; } }
 
-		public PoisonSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is Mobile)
+                {
+                    Target((Mobile)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public PoisonSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -30,6 +51,11 @@ namespace Server.Spells.Third
 			{
 				Caster.SendLocalizedMessage( 500237 ); // Target can not be seen.
 			}
+            else if (!CheckLineOfSight(m))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( CheckHSequence( m ) )
 			{
 				SpellHelper.Turn( Caster, m );
@@ -71,28 +97,7 @@ namespace Server.Spells.Third
 					}
 					else
 					{
-						//double total = Caster.Skills[SkillName.Magery].Value + Caster.Skills[SkillName.Poisoning].Value;
-
-						#region Dueling
-						double total = Caster.Skills[SkillName.Magery].Value;
-
-						if ( Caster is Mobiles.PlayerMobile )
-						{
-							Mobiles.PlayerMobile pm = (Mobiles.PlayerMobile)Caster;
-
-							if ( pm.DuelContext != null && pm.DuelContext.Started && !pm.DuelContext.Finished && !pm.DuelContext.Ruleset.GetOption( "Skills", "Poisoning" ) )
-							{
-							}
-							else
-							{
-								total += Caster.Skills[SkillName.Poisoning].Value;
-							}
-						}
-						else
-						{
-							total += Caster.Skills[SkillName.Poisoning].Value;
-						}
-						#endregion
+						double total = Caster.Skills[SkillName.Magery].Value + Caster.Skills[SkillName.Poisoning].Value;
 
 						double dist = Caster.GetDistanceToSqrt( m );
 
@@ -114,12 +119,43 @@ namespace Server.Spells.Third
 
 				m.FixedParticles( 0x374A, 10, 15, 5021, EffectLayer.Waist );
 				m.PlaySound( 0x205 );
-
-				HarmfulSpell( m );
 			}
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private PoisonSpell m_Owner;
+
+            public InternalSphereTarget(PoisonSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Mobile)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		private class InternalTarget : Target
 		{

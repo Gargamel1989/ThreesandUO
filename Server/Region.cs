@@ -717,13 +717,27 @@ namespace Server
 			return true;
 		}
 
-		public virtual void OnSpellCast( Mobile m, ISpell s )
+        public virtual bool OnBeginHiding(Mobile m, IHiding h)
+        {
+            if (m_Parent != null)
+                return m_Parent.OnBeginHiding(m, h);
+
+            return true;
+        }
+
+        public virtual void OnSpellCast( Mobile m, ISpell s )
 		{
 			if ( m_Parent != null )
 				m_Parent.OnSpellCast( m, s );
 		}
 
-		public virtual bool OnResurrect( Mobile m )
+        public virtual void OnHide(Mobile m, IHiding h)
+        {
+            if (m_Parent != null)
+                m_Parent.OnHide(m, h);
+        }
+
+        public virtual bool OnResurrect( Mobile m )
 		{
 			if ( m_Parent != null )
 				return m_Parent.OnResurrect( m );

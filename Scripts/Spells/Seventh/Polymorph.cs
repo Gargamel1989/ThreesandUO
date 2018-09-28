@@ -21,7 +21,86 @@ namespace Server.Spells.Seventh
 
 		public override SpellCircle Circle { get { return SpellCircle.Seventh; } }
 
-		private int m_NewBody;
+	    public override void SelectTarget()
+	    {
+            CastSpell();
+	    }
+
+	    public override void OnSphereCast()
+	    {
+            if (Factions.Sigil.ExistsOn(Caster))
+            {
+                Caster.SendLocalizedMessage(1010521); // You cannot polymorph while you have a Town Sigil
+            }
+            else if (!Caster.CanBeginAction(typeof(PolymorphSpell)))
+            {
+                if (Core.ML)
+                    EndPolymorph(Caster);
+                else
+                    Caster.SendLocalizedMessage(1005559); // This spell is already in effect.
+            }
+            else if (TransformationSpellHelper.UnderTransformation(Caster))
+            {
+                Caster.SendLocalizedMessage(1061633); // You cannot polymorph while in that form.
+            }
+            else if (DisguiseTimers.IsDisguised(Caster))
+            {
+                Caster.SendLocalizedMessage(502167); // You cannot polymorph while disguised.
+            }
+            else if (Caster.BodyMod == 183 || Caster.BodyMod == 184)
+            {
+                Caster.SendLocalizedMessage(1042512); // You cannot polymorph while wearing body paint
+            }
+            else if (!Caster.CanBeginAction(typeof(IncognitoSpell)) || Caster.IsBodyMod)
+            {
+                DoFizzle();
+            }
+            else if (CheckSequence())
+            {
+                if (Caster.BeginAction(typeof(PolymorphSpell)))
+                {
+                    if (m_NewBody != 0)
+                    {
+                        if (!((Body)m_NewBody).IsHuman)
+                        {
+                            Mobiles.IMount mt = Caster.Mount;
+
+                            if (mt != null)
+                                mt.Rider = null;
+                        }
+
+                        Caster.BodyMod = m_NewBody;
+
+                        if (m_NewBody == 400 || m_NewBody == 401)
+                            Caster.HueMod = Utility.RandomSkinHue();
+                        else
+                            Caster.HueMod = 0;
+
+                        BaseArmor.ValidateMobile(Caster);
+                        BaseClothing.ValidateMobile(Caster);
+
+                        if (!Core.ML)
+                        {
+                            StopTimer(Caster);
+
+                            Timer t = new InternalTimer(Caster);
+
+                            m_Timers[Caster] = t;
+
+                            t.Start();
+                        }
+                    }
+                }
+                else
+                {
+                    Caster.SendLocalizedMessage(1005559); // This spell is already in effect.
+                }
+            }
+
+            FinishSequence();
+	    }
+
+	    private int m_NewBody;
 
 		public PolymorphSpell( Mobile caster, Item scroll, int body ) : base( caster, scroll, m_Info )
 		{

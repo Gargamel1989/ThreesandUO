@@ -20,7 +20,28 @@ namespace Server.Spells.Fifth
 
 		public override SpellCircle Circle { get { return SpellCircle.Fifth; } }
 
-		public DispelFieldSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is Item)
+                {
+                    Target((Item)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public DispelFieldSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -37,6 +58,11 @@ namespace Server.Spells.Fifth
 			{
 				Caster.SendLocalizedMessage( 500237 ); // Target can not be seen.
 			}
+            else if (!CheckLineOfSight(item))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( !t.IsDefined( typeof( DispellableFieldAttribute ), false ) )
 			{
 				Caster.SendLocalizedMessage( 1005049 ); // That cannot be dispelled.
@@ -58,6 +84,39 @@ namespace Server.Spells.Fifth
 			FinishSequence();
 		}
 
+        private class InternalSphereTarget : Target
+        {
+            private DispelFieldSpell m_Owner;
+
+            public InternalSphereTarget(DispelFieldSpell owner)
+                : base(Core.ML ? 10 : 12, true, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Item)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendLocalizedMessage(1005049); // That cannot be dispelled.
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+
+        }
 		private class InternalTarget : Target
 		{
 			private DispelFieldSpell m_Owner;

@@ -20,9 +20,48 @@ namespace Server.Spells.Eighth
 
 		public override SpellCircle Circle { get { return SpellCircle.Eighth; } }
 
-		public FireElementalSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is IPoint3D)
+                {
+                    Target((IPoint3D)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Invalid Target");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public FireElementalSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
+
+        public void Target(IPoint3D p)
+        {
+            if (!Caster.CanSee(p))
+            {
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
+            }
+            else if (!CheckLineOfSight(p))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
+            else if (CheckSequence())
+            {
+            }
+
+            FinishSequence();
+        }
 
 		public override bool CheckCast()
 		{
@@ -52,5 +91,38 @@ namespace Server.Spells.Eighth
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private FireElementalSpell m_Owner;
+
+            public InternalSphereTarget(FireElementalSpell owner)
+                : base(8, true, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is IPoint3D)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 	}
 }

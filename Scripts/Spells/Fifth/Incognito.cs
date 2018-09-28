@@ -7,6 +7,7 @@ using Server.Items;
 using Server.Gumps;
 using Server.Spells;
 using Server.Spells.Seventh;
+using Server.Targeting;
 
 namespace Server.Spells.Fifth
 {
@@ -23,11 +24,117 @@ namespace Server.Spells.Fifth
 
 		public override SpellCircle Circle { get { return SpellCircle.Fifth; } }
 
-		public IncognitoSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is Mobile)
+                {
+                    Target((Mobile)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public IncognitoSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
-		public override bool CheckCast()
+        public void Target(Mobile m)
+        {
+            if (!Caster.CanSee(m))
+            {
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
+            }
+            else if (!CheckLineOfSight(m))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
+            else if ( Factions.Sigil.ExistsOn( Caster ) )
+			{
+				Caster.SendLocalizedMessage( 1010445 ); // You cannot incognito if you have a sigil
+			}
+			else if ( !Caster.CanBeginAction( typeof( IncognitoSpell ) ) )
+			{
+				Caster.SendLocalizedMessage( 1005559 ); // This spell is already in effect.
+			}
+			else if ( Caster.BodyMod == 183 || Caster.BodyMod == 184 )
+			{
+				Caster.SendLocalizedMessage( 1042402 ); // You cannot use incognito while wearing body paint
+			}
+			else if ( DisguiseTimers.IsDisguised( Caster ) )
+			{
+				Caster.SendLocalizedMessage( 1061631 ); // You can't do that while disguised.
+			}
+			else if ( !Caster.CanBeginAction( typeof( PolymorphSpell ) ) || Caster.IsBodyMod )
+			{
+				DoFizzle();
+			}
+			else if ( CheckSequence() )
+			{
+				if ( Caster.BeginAction( typeof( IncognitoSpell ) ) )
+				{
+					DisguiseTimers.StopTimer( Caster );
+
+					m.HueMod = Caster.Race.RandomSkinHue();
+					m.NameMod = m.Female ? NameList.RandomName( "female" ) : NameList.RandomName( "male" );
+
+					PlayerMobile pm = m as PlayerMobile;
+
+					if ( pm != null && pm.Race != null )
+					{
+						pm.SetHairMods( pm.Race.RandomHair( pm.Female ), pm.Race.RandomFacialHair( pm.Female ) );
+						pm.HairHue = pm.Race.RandomHairHue();
+						pm.FacialHairHue = pm.Race.RandomHairHue();
+					}
+
+					Caster.FixedParticles( 0x373A, 10, 15, 5036, EffectLayer.Head );
+					Caster.PlaySound( 0x3BD );
+
+					BaseArmor.ValidateMobile( m );
+					BaseClothing.ValidateMobile( m );
+
+					StopTimer( m );
+
+
+					int timeVal = ((6 * Caster.Skills.Magery.Fixed) / 50) + 1;
+
+					if( timeVal > 144 )
+						timeVal = 144;
+
+					TimeSpan length = TimeSpan.FromSeconds( timeVal );
+
+
+					Timer t = new InternalTimer( m, length );
+
+					m_Timers[m] = t;
+
+					t.Start();
+
+					BuffInfo.AddBuff( m, new BuffInfo( BuffIcon.Incognito, 1075819, length, m ) );
+
+				}
+				else
+				{
+					Caster.SendLocalizedMessage( 1079022 ); // You're already incognitoed!
+				}
+			}
+
+            FinishSequence();
+        }
+
+	    public override bool CheckCast()
 		{
 			if ( Factions.Sigil.ExistsOn( Caster ) )
 			{
@@ -122,6 +229,39 @@ namespace Server.Spells.Fifth
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private IncognitoSpell m_Owner;
+
+            public InternalSphereTarget(IncognitoSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.None)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is Mobile)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("This spell needs a target object");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		private static Hashtable m_Timers = new Hashtable();
 

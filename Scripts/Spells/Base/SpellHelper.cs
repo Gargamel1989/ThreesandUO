@@ -286,7 +286,7 @@ namespace Server.Spells
 			set { m_DisableSkillCheck = value; }
 		}
 
-		public static double GetOffsetScalar( Mobile caster, Mobile target, bool curse )
+        public static double GetOffsetScalar( Mobile caster, Mobile target, bool curse )
 		{
 			double percent;
 
@@ -1075,7 +1075,9 @@ namespace Server.Spells
 			}
 		}
 
-		public static void DoLeech( int damageGiven, Mobile from, Mobile target )
+        
+
+        public static void DoLeech( int damageGiven, Mobile from, Mobile target )
 		{
 			TransformContext context = TransformationSpellHelper.GetContext( from );
 

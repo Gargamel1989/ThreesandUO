@@ -18,8 +18,28 @@ namespace Server.Spells.Fifth
 			);
 
 		public override SpellCircle Circle { get { return SpellCircle.Fifth; } }
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
 
-		public BladeSpiritsSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is IPoint3D)
+                {
+                    Target((IPoint3D)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public BladeSpiritsSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -56,6 +76,15 @@ namespace Server.Spells.Fifth
 
 			SpellHelper.GetSurfaceTop( ref p );
 
+            if (!Caster.CanSee(p))
+            {
+                Caster.SendLocalizedMessage(500237); // Target can not be seen.
+            }
+            else if (!CheckLineOfSight(p))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			if ( map == null || !map.CanSpawnMobile( p.X, p.Y, p.Z ) )
 			{
 				Caster.SendLocalizedMessage( 501942 ); // That location is blocked.
@@ -74,6 +103,39 @@ namespace Server.Spells.Fifth
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private BladeSpiritsSpell m_Owner;
+
+            public InternalSphereTarget(BladeSpiritsSpell owner)
+                : base(Core.ML ? 10 : 12, true, TargetFlags.Harmful)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is IPoint3D)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("Invalid target");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		private class InternalTarget : Target
 		{
@@ -94,7 +156,7 @@ namespace Server.Spells.Fifth
 			{
 				from.SendLocalizedMessage( 501943 ); // Target cannot be seen. Try again.
 				from.Target = new InternalTarget( m_Owner );
-				from.Target.BeginTimeout( from, TimeoutTime - DateTime.UtcNow );
+				from.Target.BeginTimeout( from, TimeoutTime - DateTime.Now );
 				m_Owner = null;
 			}
 

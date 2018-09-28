@@ -18,7 +18,28 @@ namespace Server.Spells.Second
 
 		public override SpellCircle Circle { get { return SpellCircle.Second; } }
 
-		public MagicTrapSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
+        public override void SelectTarget()
+        {
+            Caster.Target = new InternalSphereTarget(this);
+        }
+
+        public override void OnSphereCast()
+        {
+            if (SpellTarget != null)
+            {
+                if (SpellTarget is TrapableContainer)
+                {
+                    Target((TrapableContainer)SpellTarget);
+                }
+                else
+                {
+                    Caster.SendAsciiMessage("Target is not a trapable container");
+                }
+            }
+            FinishSequence();
+        }
+
+	    public MagicTrapSpell( Mobile caster, Item scroll ) : base( caster, scroll, m_Info )
 		{
 		}
 
@@ -33,6 +54,11 @@ namespace Server.Spells.Second
 			{
 				Caster.SendLocalizedMessage( 500237 ); // Target can not be seen.
 			}
+            else if (!CheckLineOfSight(item))
+            {
+                this.DoFizzle();
+                Caster.SendAsciiMessage("Target is not in line of sight");
+            }
 			else if ( item.TrapType != TrapType.None && item.TrapType != TrapType.MagicTrap )
 			{
 				base.DoFizzle();
@@ -58,6 +84,39 @@ namespace Server.Spells.Second
 
 			FinishSequence();
 		}
+
+        private class InternalSphereTarget : Target
+        {
+            private MagicTrapSpell m_Owner;
+
+            public InternalSphereTarget(MagicTrapSpell owner)
+                : base(Core.ML ? 10 : 12, false, TargetFlags.None)
+            {
+                m_Owner = owner;
+                m_Owner.Caster.SendAsciiMessage("Select target...");
+            }
+
+            protected override void OnTarget(Mobile from, object o)
+            {
+                if (o is TrapableContainer)
+                {
+                    m_Owner.SpellTarget = o;
+                    m_Owner.CastSpell();
+                }
+                else
+                {
+                    m_Owner.Caster.SendAsciiMessage("Target is not a trapable container");
+                }
+            }
+
+            protected override void OnTargetFinish(Mobile from)
+            {
+                if (m_Owner.SpellTarget == null)
+                {
+                    m_Owner.Caster.SendAsciiMessage("Targeting cancelled.");
+                }
+            }
+        }
 
 		private class InternalTarget : Target
 		{

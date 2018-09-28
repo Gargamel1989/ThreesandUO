@@ -735,6 +735,7 @@ namespace Server
 		private int m_TotalGold, m_TotalItems, m_TotalWeight;
 		private List<StatMod> m_StatMods;
 		private ISpell m_Spell;
+        private IHiding m_hiding;
 		private Target m_Target;
 		private Prompt m_Prompt;
 		private ContextMenu m_ContextMenu;
@@ -749,6 +750,7 @@ namespace Server
 		private bool m_DisplayGuildTitle;
 		private Mobile m_GuildFealty;
 		private long m_NextSpellTime;
+        private long m_NextHideTime;
 		private Timer m_ExpireCombatant;
 		private Timer m_ExpireCriminal;
 		private Timer m_ExpireAggrTimer;
@@ -3478,6 +3480,21 @@ namespace Server
 			}
 		}
 
+        public IHiding Hiding
+        {
+            get
+            {
+                return m_hiding;
+            }
+            set
+            {
+                if (m_hiding != null && value != null)
+                    Console.WriteLine("Warning: Hiding has been overwritten" );
+
+                m_hiding = value;
+            }
+        }
+
 		[CommandProperty( AccessLevel.Administrator )]
 		public bool AutoPageNotify
 		{
@@ -3731,6 +3748,11 @@ namespace Server
 			return true;
 		}
 
+        public virtual bool CheckHiding( IHiding hiding)
+        {
+            return true;
+        }
+
 		/// <summary>
 		/// Overridable. Virtual event invoked when the Mobile casts a <paramref name="spell" />.
 		/// </summary>
@@ -3738,6 +3760,14 @@ namespace Server
 		public virtual void OnSpellCast( ISpell spell )
 		{
 		}
+
+        /// <summary>
+		/// Overridable. Virtual event invoked when the Mobile tries to <paramref name="hide" />.
+		/// </summary>
+		/// <param name="hide"></param>
+        public virtual void OnHiding( IHiding hide )
+        {
+        }
 
 		/// <summary>
 		/// Overridable. Virtual event invoked after <see cref="TotalWeight" /> changes.
@@ -3857,7 +3887,10 @@ namespace Server
 
 			if( m_Spell != null )
 				m_Spell.OnCasterKilled();
-			//m_Spell.Disturb( DisturbType.Kill );
+            //m_Spell.Disturb( DisturbType.Kill );
+
+            if (m_hiding != null)
+                m_hiding.OnHiderKilled();
 
 			if( m_Target != null )
 				m_Target.Cancel( this, TargetCancelType.Canceled );
@@ -5122,7 +5155,8 @@ namespace Server
 		/// </summary>
 		public virtual void OnDamage( int amount, Mobile from, bool willKill )
 		{
-		}
+            from.SendAsciiMessage(0x22, string.Format("You took {0} damage!", amount.ToString("#,0")));
+        }
 
 		public virtual void Damage( int amount )
 		{
@@ -5155,8 +5189,11 @@ namespace Server
 				if( m_Spell != null )
 					m_Spell.OnCasterHurt();
 
-				//if ( m_Spell != null && m_Spell.State == SpellState.Casting )
-				//	m_Spell.Disturb( DisturbType.Hurt, false, true );
+                //if ( m_Spell != null && m_Spell.State == SpellState.Casting )
+                //	m_Spell.Disturb( DisturbType.Hurt, false, true );
+
+                if (m_hiding != null)
+                    m_hiding.OnHiderHurt();
 
 				if( from != null )
 					RegisterDamage( amount, from );
@@ -8059,8 +8096,11 @@ namespace Server
 					if( m_Spell != null )
 						m_Spell.OnConnectionChanged();
 
-					//if ( m_Spell != null )
-					//	m_Spell.FinishSequence();
+                    //if ( m_Spell != null )
+                    //	m_Spell.FinishSequence();
+
+                    if (m_hiding != null)
+                        m_hiding.OnConnectionChanged();
 
 					if( m_NetState != null )
 						m_NetState.CancelAllTrades();
@@ -11309,6 +11349,18 @@ namespace Server
 				m_NextSpellTime = value;
 			}
 		}
+
+        public long NextHideTime
+        {
+            get
+            {
+                return m_NextHideTime;
+            }
+            set
+            {
+                m_NextHideTime = value;
+            }
+        }
 
 		/// <summary>
 		/// Overridable. Virtual event invoked when the sector this Mobile is in gets <see cref="Sector.Activate">activated</see>.
