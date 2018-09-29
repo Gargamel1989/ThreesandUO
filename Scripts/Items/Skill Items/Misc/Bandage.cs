@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using Server;
 using Server.Gumps;
 using Server.Items;
@@ -407,8 +408,15 @@ namespace Server.Items
 					}
 					else
 					{
-						min = (anatomy / 5.0) + (healing / 5.0) + 3.0;
-						max = (anatomy / 5.0) + (healing / 2.0) + 10.0;
+						//This one we use atm: 29/09/2018 ~ Drabzes
+//						min = (anatomy / 5.0) + (healing / 5.0) + 3.0;
+//						max = (anatomy / 5.0) + (healing / 2.0) + 10.0;
+						
+						//new calculation
+						
+						min = (anatomy / 20.0) + (healing / 4.0) + 3.0;
+						max = (anatomy / 12.0) + (healing / 4.0) + 6.0;
+						
 					}
 
 					double toHeal = min + (Utility.RandomDouble() * (max - min));
@@ -428,6 +436,8 @@ namespace Server.Items
 					}
 
 					m_Patient.Heal( (int) toHeal, m_Healer, false );
+					
+					m_Patient.SendMessage(2050, "You got healed for the amount of {0:0}", toHeal);
 				}
 				else
 				{
@@ -503,7 +513,11 @@ namespace Server.Items
 					if ( Core.AOS )
 						seconds = 5.0 + (0.5 * ((double)(120 - dex) / 10)); // TODO: Verify algorithm
 					else
-						seconds = 9.4 + (0.6 * ((double)(120 - dex) / 10));
+						//We use this system ~ Drabzes
+//						seconds = 9.4 + (0.6 * ((double)(120 - dex) / 10));
+						seconds = 2;
+					
+					
 				}
 				else
 				{
@@ -524,12 +538,17 @@ namespace Server.Items
 					}
 					else
 					{
-						if ( dex >= 100 )
-							seconds = 3.0 + resDelay;
-						else if ( dex >= 40 )
-							seconds = 4.0 + resDelay;
-						else
-							seconds = 5.0 + resDelay;
+						//We use this code to create a bandage delay ~ Drabzes
+//						if ( dex >= 100 )
+//							seconds = 3.0 + resDelay;
+//						else if ( dex >= 40 )
+//							seconds = 4.0 + resDelay;
+//						else
+//							seconds = 5.0 + resDelay;
+
+						//It takes 2 seconds to heal and 7 seconds to res a dead character ~ Drabzes
+						seconds = 2 + resDelay;
+						patient.PublicOverheadMessage(MessageType.Yell, 0, false, String.Format("Healing in {0} seconds", seconds));
 					}
 				}
 

@@ -4045,6 +4045,13 @@
           <e p="Stealth.cs" t="Include" />
           <e p="TasteID.cs" t="Include" />
           <e p="Tracking.cs" t="Include" />
+          <e p="Utility" t="Include">
+            <e p="Hiding" t="Include">
+              <e p="DisturbType.cs" t="Include" />
+              <e p="Hide.cs" t="Include" />
+              <e p="HidingState.cs" t="Include" />
+            </e>
+          </e>
         </e>
         <e p="SpecialSystems" t="Include">
           <e p="Engines" t="Include">
