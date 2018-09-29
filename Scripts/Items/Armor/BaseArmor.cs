@@ -64,7 +64,7 @@ namespace Server.Items
 
 		// Overridable values. These values are provided to override the defaults which get defined in the individual armor scripts.
 		private int m_ArmorBase = -1;
-		private int m_StrBonus = -1, m_DexBonus = -1, m_IntBonus = -1;
+		private int m_StrBonus = 0, m_DexBonus = 0, m_IntBonus = 0;
 		private int m_StrReq = -1, m_DexReq = -1, m_IntReq = -1;
 		private AMA m_Meditate = (AMA)(-1);
 
