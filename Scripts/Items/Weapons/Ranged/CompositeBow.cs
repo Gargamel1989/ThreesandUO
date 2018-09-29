@@ -1,6 +1,7 @@
 using System;
 using Server.Network;
 using Server.Items;
+using Server.Mobiles;
 
 namespace Server.Items
 {
@@ -21,7 +22,36 @@ namespace Server.Items
 		public override float MlSpeed{ get{ return 4.00f; } }
 
 		public override int OldStrengthReq{ get{ return 45; } }
-		public override int OldMinDamage{ get{ return 15; } }
+
+		public override int OldMinDamage
+		{
+			get
+			{
+				int dmg = 15;
+				
+				if (Resource2 != null)
+				{
+					switch ( Resource2 )
+					{
+						case CraftResource.DullCopper:		dmg += 2; break;
+						case CraftResource.ShadowIron:		dmg += 4; break;
+						case CraftResource.Copper:			dmg += 6; break;
+						case CraftResource.Bronze:			dmg += 8; break;
+						case CraftResource.Gold:			dmg += 10; break;
+						case CraftResource.Agapite:			dmg += 12; break;
+						case CraftResource.Verite:			dmg += 14; break;
+						case CraftResource.Valorite:		dmg += 16; break;
+						case CraftResource.SpinedLeather:	dmg += 10; break;
+						case CraftResource.HornedLeather:	dmg += 13; break;
+						case CraftResource.BarbedLeather:	dmg += 16; break;
+					}
+
+					return dmg;
+				}
+				
+				return dmg;
+			}
+		}
 		public override int OldMaxDamage{ get{ return 17; } }
 		public override int OldSpeed{ get{ return 25; } }
 

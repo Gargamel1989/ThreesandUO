@@ -83,7 +83,7 @@ namespace Server.Items
 		private SlayerName m_Slayer2;
 		private SkillMod m_SkillMod, m_MageMod;
         private CraftResource m_Resource;
-        private CraftResource? m_Resource2;
+        private CraftResource m_Resource2;
         private bool m_PlayerConstructed;
 
 		private bool m_Cursed; // Is this weapon cursed via Curse Weapon necromancer spell? Temporary; not serialized.
@@ -282,7 +282,7 @@ namespace Server.Items
         }
         // TODO: Adapt all functions using Resource to also use Resource2
         [CommandProperty(AccessLevel.GameMaster)]
-        public CraftResource? Resource2
+        public CraftResource Resource2
         {
             get { return m_Resource2; }
             set { UnscaleDurability(); m_Resource2 = value; InvalidateProperties(); ScaleDurability(); }
@@ -2795,7 +2795,7 @@ namespace Server.Items
 					if ( GetSaveFlag( flags, SaveFlag.Resource2 ) )
 						m_Resource2 = (CraftResource)reader.ReadInt();
 					else
-						m_Resource2 = null;
+						m_Resource2 = CraftResource.Iron;
 
 					if ( GetSaveFlag( flags, SaveFlag.xAttributes ) )
 						m_AosAttributes = new AosAttributes( this, reader );
@@ -2877,6 +2877,7 @@ namespace Server.Items
 					if ( version < 5 )
 					{
 						m_Resource = CraftResource.Iron;
+						m_Resource2 = CraftResource.Iron;
 						m_AosAttributes = new AosAttributes( this );
 						m_AosWeaponAttributes = new AosWeaponAttributes( this );
 						m_AosElementDamages = new AosElementAttributes( this );
@@ -3007,6 +3008,7 @@ namespace Server.Items
 			m_Hits = m_MaxHits = Utility.RandomMinMax( InitMinHits, InitMaxHits );
 
 			m_Resource = CraftResource.Iron;
+			m_Resource = CraftResource.None;
 
 			m_AosAttributes = new AosAttributes( this );
 			m_AosWeaponAttributes = new AosWeaponAttributes( this );
