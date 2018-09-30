@@ -11,6 +11,7 @@ using Server.Spells.Ninjitsu;
 using Server.Factions;
 using Server.Engines.Craft;
 using System.Collections.Generic;
+using Server.Engines.Equipement_Requirement;
 using Server.Spells.Spellweaving;
 
 namespace Server.Items
@@ -581,11 +582,39 @@ namespace Server.Items
 
 		public virtual Race RequiredRace { get { return null; } }	//On OSI, there are no weapons with race requirements, this is for custom stuff
 
+		public virtual double RequiredSkillLevel
+		{
+			get { return 0.0; }
+		}
+
+		//Required skills for a weapon
+		public virtual List<RequiredSkill> RequiredSkills
+		{
+			get { return null; }
+		}
+
 		public override bool CanEquip( Mobile from )
 		{
 			if ( !Ethics.Ethic.CheckEquip( from, this ) )
 				return false;
+			
+			//Dynamic skill checker
+			if (RequiredSkills != null)
+			{
+				foreach (var requiredSkill in RequiredSkills)
+				{
+					double minSkill = requiredSkill.MinSkillLevel;
+					double m_SkillValue = from.Skills[requiredSkill.RequiredSkillName].Value;
 
+					if (minSkill > m_SkillValue)
+					{
+						from.SendMessage( "You need to have a higher {0} skill level to equipe this weapon", 
+							requiredSkill.RequiredSkillName);
+						return false;
+					}
+
+				}
+			}
 			if( RequiredRace != null && from.Race != RequiredRace )
 			{
 				if( RequiredRace == Race.Elf )

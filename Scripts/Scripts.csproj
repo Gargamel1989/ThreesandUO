@@ -239,6 +239,7 @@
     <Compile Include="Engines\Doom\LeverPuzzle\LeverPuzzleController.cs" />
     <Compile Include="Engines\Doom\LeverPuzzle\LeverPuzzleItems.cs" />
     <Compile Include="Engines\Doom\LeverPuzzle\LeverPuzzleRegions.cs" />
+    <Compile Include="Engines\Equipement Requirement\RequiredSkill.cs" />
     <Compile Include="Engines\Ethics\Core\Ethic.cs" />
     <Compile Include="Engines\Ethics\Core\Persistance.cs" />
     <Compile Include="Engines\Ethics\Core\Player.cs" />

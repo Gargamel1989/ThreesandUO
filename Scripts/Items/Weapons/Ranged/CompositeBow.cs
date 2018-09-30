@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Server.Engines.Equipement_Requirement;
 using Server.Network;
 using Server.Items;
 using Server.Mobiles;
@@ -28,9 +30,11 @@ namespace Server.Items
 			get
 			{
 				int dmg = 15;
+				double dmgBonus = 0;
 				
 				if (Resource2 != null)
 				{
+					//Check how much the damage bonus is on the Composite Bow
 					switch ( Resource2 )
 					{
 						case CraftResource.DullCopper:		dmg += 2; break;
@@ -40,10 +44,12 @@ namespace Server.Items
 						case CraftResource.Gold:			dmg += 10; break;
 						case CraftResource.Agapite:			dmg += 12; break;
 						case CraftResource.Verite:			dmg += 14; break;
-						case CraftResource.Valorite:		dmg += 16; break;
-						case CraftResource.SpinedLeather:	dmg += 10; break;
-						case CraftResource.HornedLeather:	dmg += 13; break;
-						case CraftResource.BarbedLeather:	dmg += 16; break;
+						case CraftResource.Valorite:
+						{
+							dmgBonus = (CraftAttributeInfo.Valorite.SmithingRequirement / 2);
+							Console.WriteLine("Composite bow damage bonus form resource2: {0}%", dmgBonus);
+							break;
+						}
 					}
 
 					return dmg;
@@ -59,6 +65,36 @@ namespace Server.Items
 
 		public override int InitMinHits{ get{ return 31; } }
 		public override int InitMaxHits{ get{ return 70; } }
+		
+		public override List<RequiredSkill> RequiredSkills
+		{
+			get
+			{
+				double skillvalue = 50.0;
+
+				switch (Resource2)
+				{
+					case CraftResource.DullCopper:
+					{
+						skillvalue += (CraftAttributeInfo.DullCopper.SmithingRequirement / 2);
+						break;
+					}
+					case CraftResource.Valorite:
+					{
+						skillvalue += (CraftAttributeInfo.Valorite.SmithingRequirement / 2);
+						break;
+					}
+				}
+				Console.WriteLine("Composite bow skillvalue = {0}%", skillvalue);
+
+				RequiredSkill skill = new RequiredSkill(SkillName.Archery, skillvalue);
+				
+				List<RequiredSkill> reqSkills = new List<RequiredSkill>();
+				reqSkills.Add(skill);
+				
+				return reqSkills;
+			}
+		}
 
 		public override WeaponAnimation DefAnimation{ get{ return WeaponAnimation.ShootBow; } }
 
