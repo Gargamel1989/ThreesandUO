@@ -32,6 +32,8 @@ namespace Server.Items
 				int dmg = 15;
 				double dmgBonus = 0;
 				
+				//ToDo implement all resources
+				
 				if (Resource2 != null)
 				{
 					//Check how much the damage bonus is on the Composite Bow
@@ -72,6 +74,7 @@ namespace Server.Items
 			{
 				double skillvalue = 50.0;
 
+				//ToDo implement all resources
 				switch (Resource2)
 				{
 					case CraftResource.DullCopper:

@@ -117,6 +117,9 @@ namespace Server.Items
 		public static readonly CraftAttributeInfo RedScales, YellowScales, BlackScales, GreenScales, WhiteScales, BlueScales;
 		public static readonly CraftAttributeInfo OakWood, AshWood, YewWood, Heartwood, Bloodwood, Frostwood;
 
+		
+		//ToDo implement all resources blacksmith skill requirements
+		//ToDo add all resources 
 		static CraftAttributeInfo()
 		{
 			Blank = new CraftAttributeInfo();
