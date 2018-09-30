@@ -398,6 +398,9 @@
               <e p="LeverPuzzleRegions.cs" t="Include" />
             </e>
           </e>
+          <e p="Equipement Requirement" t="Include">
+            <e p="RequiredSkill.cs" t="Include" />
+          </e>
           <e p="Ethics" t="Include">
             <e p="Core" t="Include">
               <e p="Ethic.cs" t="Include" />

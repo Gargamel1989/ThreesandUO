@@ -53,15 +53,15 @@ namespace Server.Items
                 if (targ is BaseRanged)
                 {
                     BaseWeapon bow = (BaseWeapon)targ;
-                    if (!bow.Resource2.HasValue)
-                    { 
-                        from.SendMessage("Select an ingot to echant the bow with.");
-                        from.Target = new InternalTarget(bow);
-                    }
-                    else
-                    {
-                        from.SendMessage("This bow is already enchanted.");
-                    }
+//                    if (!bow.Resource2.HasValue)
+//                    { 
+//                        from.SendMessage("Select an ingot to echant the bow with.");
+//                        from.Target = new InternalTarget(bow);
+//                    }
+//                    else
+//                    {
+//                        from.SendMessage("This bow is already enchanted.");
+//                    }
 
                 }
                 else

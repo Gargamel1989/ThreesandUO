@@ -48,6 +48,8 @@ namespace Server.Items
 
 	public class CraftAttributeInfo
 	{
+		private double c_SmithSkillReq; 
+		
 		private int m_WeaponFireDamage;
 		private int m_WeaponColdDamage;
 		private int m_WeaponPoisonDamage;
@@ -100,6 +102,11 @@ namespace Server.Items
 		public int RunicMinIntensity{ get{ return m_RunicMinIntensity; } set{ m_RunicMinIntensity = value; } }
 		public int RunicMaxIntensity{ get{ return m_RunicMaxIntensity; } set{ m_RunicMaxIntensity = value; } }
 
+		public double SmithingRequirement
+		{
+			get { return c_SmithSkillReq; } set { c_SmithSkillReq = value; } 
+		}
+
 		public CraftAttributeInfo()
 		{
 		}
@@ -116,6 +123,7 @@ namespace Server.Items
 
 			CraftAttributeInfo dullCopper = DullCopper = new CraftAttributeInfo();
 
+			dullCopper.c_SmithSkillReq = 65.0;
 			dullCopper.ArmorPhysicalResist = 6;
 			dullCopper.ArmorDurability = 50;
 			dullCopper.ArmorLowerRequirements = 20;
@@ -264,6 +272,8 @@ namespace Server.Items
 			}
 
 			CraftAttributeInfo valorite = Valorite = new CraftAttributeInfo();
+
+			valorite.SmithingRequirement = 100;
 
 			valorite.ArmorPhysicalResist = 4;
 			valorite.ArmorColdResist = 3;
